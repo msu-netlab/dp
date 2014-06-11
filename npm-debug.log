@@ -1,0 +1,359 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files (x86)\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   'net-ping' ]
+2 info using npm@1.4.3
+3 info using node@v0.10.26
+4 verbose node symlink C:\Program Files (x86)\nodejs\\node.exe
+5 verbose cache add [ 'net-ping', null ]
+6 verbose cache add name=undefined spec="net-ping" args=["net-ping",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: 'net-ping',
+7 verbose parsed url   path: 'net-ping',
+7 verbose parsed url   href: 'net-ping' }
+8 silly lockFile 9eed2ae3-net-ping net-ping
+9 verbose lock net-ping C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\9eed2ae3-net-ping.lock
+10 silly lockFile 9eed2ae3-net-ping net-ping
+11 silly lockFile 9eed2ae3-net-ping net-ping
+12 verbose addNamed [ 'net-ping', '' ]
+13 verbose addNamed [ null, '*' ]
+14 silly lockFile 91930946-net-ping net-ping@
+15 verbose lock net-ping@ C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\91930946-net-ping.lock
+16 silly addNameRange { name: 'net-ping', range: '*', hasData: false }
+17 verbose url raw net-ping
+18 verbose url resolving [ 'https://registry.npmjs.org/', './net-ping' ]
+19 verbose url resolved https://registry.npmjs.org/net-ping
+20 info trying registry request attempt 1 at 13:27:48
+21 verbose etag "B2704CFKIIQJK8SXEZ0J8DRHK"
+22 http GET https://registry.npmjs.org/net-ping
+23 http 304 https://registry.npmjs.org/net-ping
+24 silly registry.get cb [ 304,
+24 silly registry.get   { date: 'Thu, 22 May 2014 19:27:52 GMT',
+24 silly registry.get     server: 'Apache',
+24 silly registry.get     via: '1.1 varnish',
+24 silly registry.get     'last-modified': 'Thu, 22 May 2014 19:27:53 GMT',
+24 silly registry.get     'cache-control': 'max-age=1',
+24 silly registry.get     etag: '"B2704CFKIIQJK8SXEZ0J8DRHK"',
+24 silly registry.get     'x-served-by': 'cache-lax1424-LAX',
+24 silly registry.get     'x-cache': 'MISS',
+24 silly registry.get     'x-cache-hits': '0',
+24 silly registry.get     'x-timer': 'S1400786872.966007471,VS0,VE143',
+24 silly registry.get     vary: 'Accept',
+24 silly registry.get     'content-length': '0',
+24 silly registry.get     'keep-alive': 'timeout=10, max=50',
+24 silly registry.get     connection: 'Keep-Alive' } ]
+25 verbose etag net-ping from cache
+26 silly addNameRange number 2 { name: 'net-ping', range: '*', hasData: true }
+27 silly addNameRange versions [ 'net-ping',
+27 silly addNameRange   [ '1.0.0',
+27 silly addNameRange     '1.0.1',
+27 silly addNameRange     '1.0.2',
+27 silly addNameRange     '1.1.0',
+27 silly addNameRange     '1.1.1',
+27 silly addNameRange     '1.1.2',
+27 silly addNameRange     '1.1.3',
+27 silly addNameRange     '1.1.4',
+27 silly addNameRange     '1.1.5',
+27 silly addNameRange     '1.1.6',
+27 silly addNameRange     '1.1.7',
+27 silly addNameRange     '1.1.8',
+27 silly addNameRange     '1.1.9',
+27 silly addNameRange     '1.1.10' ] ]
+28 verbose addNamed [ 'net-ping', '1.1.10' ]
+29 verbose addNamed [ '1.1.10', '1.1.10' ]
+30 silly lockFile 2a38ee14-net-ping-1-1-10 net-ping@1.1.10
+31 verbose lock net-ping@1.1.10 C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\2a38ee14-net-ping-1-1-10.lock
+32 silly lockFile 2a38ee14-net-ping-1-1-10 net-ping@1.1.10
+33 silly lockFile 2a38ee14-net-ping-1-1-10 net-ping@1.1.10
+34 silly lockFile 91930946-net-ping net-ping@
+35 silly lockFile 91930946-net-ping net-ping@
+36 silly resolved [ { name: 'net-ping',
+36 silly resolved     version: '1.1.10',
+36 silly resolved     description: 'Ping and trace route to many hosts at once.',
+36 silly resolved     main: 'index.js',
+36 silly resolved     directories: { example: 'example' },
+36 silly resolved     dependencies: { 'raw-socket': '*' },
+36 silly resolved     contributors: [ [Object] ],
+36 silly resolved     repository:
+36 silly resolved      { type: 'mercurial',
+36 silly resolved        url: 'https://bitbucket.org/stephenwvickers/node-net-ping' },
+36 silly resolved     keywords:
+36 silly resolved      [ 'echo',
+36 silly resolved        'icmp',
+36 silly resolved        'monitor',
+36 silly resolved        'monitoring',
+36 silly resolved        'net',
+36 silly resolved        'network',
+36 silly resolved        'ping',
+36 silly resolved        'trace',
+36 silly resolved        'trace-route',
+36 silly resolved        'traceroute',
+36 silly resolved        'tracert' ],
+36 silly resolved     author:
+36 silly resolved      { name: 'Stephen Vickers',
+36 silly resolved        email: 'stephen.vickers.sv@gmail.com' },
+36 silly resolved     license: 'MIT',
+36 silly resolved     readme: '\n# net-ping - [homepage][homepage]\n\nThis module implements ICMP Echo (ping) support for [Node.js][nodejs].\n\nThis module is installed using [node package manager (npm)][npm]:\n\n    npm install net-ping\n\nIt is loaded using the `require()` function:\n\n    var ping = require ("net-ping");\n\nA ping session can then be created to ping or trace route to many hosts:\n\n    var session = ping.createSession ();\n\n    session.pingHost (target, function (error, target) {\n        if (error)\n            console.log (target + ": " + error.toString ());\n        else\n            console.log (target + ": Alive");\n    });\n\n[homepage]: http://re-tool.org "Homepage"\n[nodejs]: http://nodejs.org "Node.js"\n[npm]: https://npmjs.org/ "npm"\n\n# Network Protocol Support\n\nThis module supports IPv4 using the ICMP, and IPv6 using the ICMPv6.\n\n# Error Handling\n\nEach request exposed by this module requires one or more mandatory callback\nfunctions.  Callback functions are typically provided an `error` argument.\n\nAll errors are sub-classes of the `Error` class.  For timed out errors the\nerror passed to the callback function will be an instance of the\n`ping.RequestTimedOutError` class, with the exposed `message` attribute set\nto `Request timed out`.\n\nThis makes it easy to determine if a host responded, a time out occurred, or\nwhether an error response was received:\n\n    session.pingHost ("1.2.3.4", function (error, target) {\n        if (error)\n            if (error instanceof ping.RequestTimedOutError)\n                console.log (target + ": Not alive");\n            else\n                console.log (target + ": " + error.toString ());\n        else\n            console.log (target + ": Alive");\n    });\n\nIn addition to the the `ping.RequestTimedOutError` class, the following errors\nare also exported by this module to wrap ICMP error responses:\n\n * `DestinationUnreachableError`\n * `PacketTooBigError`\n * `ParameterProblemError`\n * `RedirectReceivedError`\n * `SourceQuenchError`\n * `TimeExceededError`\n\nThese errors are typically reported by hosts other than the intended target.\nIn all cases each class exposes a `source` attribute which will specify the\nhost who reported the error (which could be the intended target).  This will\nalso be included in the errors `message` attribute, i.e.:\n\n    $ sudo node example/ping-ttl.js 1 192.168.2.10 192.168.2.20 192.168.2.30\n    192.168.2.10: Alive\n    192.168.2.20: TimeExceededError: Time exceeded (source=192.168.1.1)\n    192.168.2.30: Not alive\n\nThe `Session` class will emit an `error` event for any other error not\ndirectly associated with a request.  This is typically an instance of the\n`Error` class with the errors `message` attribute specifying the reason.\n\n# Packet Size\n\nBy default ICMP echo request packets sent by this module are 16 bytes in size.\nSome implementations cannot cope with such small ICMP echo requests.  For\nexample, some implementations will return an ICMP echo reply, but will include\nan incorrect ICMP checksum.\n\nThis module exposes a `packetSize` option to the `createSession()` method which\nspecifies how big ICMP echo request packets should be:\n\n    var session = ping.createSession ({packetSize: 64});\n\n# Round Trip Times\n\nSome callbacks used by methods exposed by this module provide two instances of\nthe JavaScript `Date` class specifying when the first ping was sent for a\nrequest, and when a request completed.\n\nThese parameters are typically named `sent` and `rcvd`, and are provided to\nhelp round trip time calculation.\n\nA request can complete in one of two ways.  In the first, a ping response is\nreceived and `rcvd - sent` will yield the round trip time for the request in\nmilliseconds.\n\nIn the second, no ping response is received resulting in a request time out.\nIn this case `rcvd - sent` will yield the total time spent waiting for each\nretry to timeout if any.  For example, if the `retries` option to the\n`createSession()` method was specified as `2` and `timeout` as `2000` then\n`rcvd - sent` will yield more than `6000` milliseconds.\n\nAlthough this module provides instances of the `Date` class to help round trip\ntime calculation the dates and times represented in each instance should not be\nconsidered 100% accurate.\n\nEnvironmental conditions can affect when a date and time is actually\ncalculated, e.g. garbage collection introducing a delay or the receipt of many\npackets at once.  There are also a number of functions through which received\npackets must pass, which can also introduce a slight variable delay.\n\nThroughout development experience has shown that, in general the smaller the\nround trip time the less accurate it will be - but the information is still\nuseful nonetheless.\n\n# Constants\n\nThe following sections describe constants exported and used by this module.\n\n## ping.NetworkProtocol\n\nThis object contains constants which can be used for the `networkProtocol`\noption to the `createSession()` function exposed by this module.  This option\nspecifies the IP protocol version to use when creating the raw socket.\n\nThe following constants are defined in this object:\n\n * `IPv4` - IPv4 protocol\n * `IPv6` - IPv6 protocol\n\n# Using This Module\n\nThe `Session` class is used to issue ping and trace route requests to many\nhosts.  This module exports the `createSession()` function which is used to\ncreate instances of the `Session` class.\n\n## ping.createSession ([options])\n\nThe `createSession()` function instantiates and returns an instance of the\n`Session` class:\n\n    // Default options\n    var options = {\n        networkProtocol: ping.NetworkProtocol.IPv4,\n        packetSize: 16,\n        retries: 1,\n        sessionId: (process.pid % 65535),\n        timeout: 2000,\n        ttl: 128\n    };\n    \n    var session = ping.createSession (options);\n\nThe optional `options` parameter is an object, and can contain the following\nitems:\n\n * `networkProtocol` - Either the constant `ping.NetworkProtocol.IPv4` or the\n   constant `ping.NetworkProtocol.IPv6`, defaults to the constant\n   `ping.NetworkProtocol.IPv4`\n * `packetSize` - How many bytes each ICMP echo request packet should be,\n   defaults to `16`, if the value specified is less that `12` then the value\n   `12` will be used (8 bytes are required for the ICMP packet itself, then 4\n   bytes are required to encode a unique session ID in the request and response\n   packets)\n * `retries` - Number of times to re-send a ping requests, defaults to `1`\n * `sessionId` - A unique ID used to identify request and response packets sent\n   by this instance of the `Session` class, valid numbers are in the range of\n   `1` to `65535`, defaults to the value of `process.pid % 65535`\n * `timeout` - Number of milliseconds to wait for a response before re-trying\n   or failing, defaults to `2000`\n * `ttl` - Value to use for the IP header time to live field, defaults to `128`\n\nAfter creating the ping `Session` object an underlying raw socket will be\ncreated.  If the underlying raw socket cannot be opened an exception with be\nthrown.  The error will be an instance of the `Error` class.\n\nSeperate instances of the `Session` class must be created for IPv4 and IPv6.\n\n## session.on ("close", callback)\n\nThe `close` event is emitted by the session when the underlying raw socket\nis closed.\n\nNo arguments are passed to the callback.\n\nThe following example prints a message to the console when the underlying raw\nsocket is closed:\n\n    session.on ("close", function () {\n        console.log ("socket closed");\n    });\n\n## session.on ("error", callback)\n\nThe `error` event is emitted by the session when the underlying raw socket\nemits an error.\n\nThe following arguments will be passed to the `callback` function:\n\n * `error` - An instance of the `Error` class, the exposed `message` attribute\n   will contain a detailed error message.\n\nThe following example prints a message to the console when an error occurs\nwith the underlying raw socket, the session is then closed:\n\n    session.on ("error", function (error) {\n        console.log (error.toString ());\n        session.close ();\n    });\n\n## session.close ()\n\nThe `close()` method closes the underlying raw socket, and cancels all\noutstanding requsts.\n\nThe calback function for each outstanding ping requests will be called.  The\nerror parameter will be an instance of the `Error` class, and the `message`\nattribute set to `Socket forcibly closed`.\n\nThe sessoin can be re-used simply by submitting more ping requests, a new raw\nsocket will be created to serve the new ping requests.  This is a way in which\nto clear outstanding requests.\n\nThe following example submits a ping request and prints the target which\nsuccessfully responded first, and then closes the session which will clear the\nother outstanding ping requests.\n\n    var targets = ["1.1.1.1", "2.2.2.2", "3.3.3.3"];\n    \n    for (var i = 0; i < targets.length; i++) {\n        session.pingHost (targets[i], function (error, target) {\n            if (! error) {\n                console.log (target);\n                session.close (); \n            }\n        });\n    }\n\n## session.pingHost (target, callback)\n\nThe `pingHost()` method sends a ping request to a remote host.\n\nThe `target` parameter is the dotted quad formatted IP address of the target\nhost for IPv4 sessions, or the compressed formatted IP address of the target\nhost for IPv6 sessions.\n\nThe `callback` function is called once the ping requests is complete.  The\nfollowing arguments will be passed to the `callback` function:\n\n * `error` - Instance of the `Error` class or a sub-class, or `null` if no\n   error occurred\n * `target` - The target parameter as specified in the request\n   still be the target host and NOT the responding gateway\n * `sent` - An instance of the `Date` class specifying when the first ping\n   was sent for this request (refer to the Round Trip Time section for more\n   information)\n * `rcvd` - An instance of the `Date` class specifying when the request\n   completed (refer to the Round Trip Time section for more information)\n\nThe following example sends a ping request to a remote host:\n\n    var target = "fe80::a00:27ff:fe2a:3427";\n\n    session.pingHost (target, function (error, target, sent, rcvd) {\n        var ms = rcvd - sent;\n        if (error)\n            console.log (target + ": " + error.toString ());\n        else\n            console.log (target + ": Alive (ms=" + ms + ")");\n    });\n\n## session.traceRoute (target, ttl, feedCallback, doneCallback)\n\nThe `traceRoute()` method provides similar functionality to the trace route\nutility typically provided with most networked operating systems.\n\nThe `target` parameter is the dotted quad formatted IP address of the target\nhost for IPv4 sessions, or the compressed formatted IP address of the target\nhost for IPv6 sessions.  The optional `ttl` parameter specifies the maximum\nnumber of hops used by the trace route and defaults to the `ttl` options\nparameter as defined by the `createSession()` method.\n\nSome hosts do not respond to ping requests when the time to live is `0`, that\nis they will not send back an time exceeded error response.  Instead of\nstopping the trace route at the first time out this method will move on to the\nnext hop, by increasing the time to live by 1.  It will do this 2 times,\nmeaning that a trace route will continue until the target host responds or at\nmost 3 request time outs are experienced.\n\nEach requst is subject to the `retries` and `timeout` option parameters to the\n`createSession()` method.  That is, requests will be retried per hop as per\nthese parameters.\n\nThis method will not call a single callback once the trace route is complete.\nInstead the `feedCallback` function will be called each time a ping response is\nreceived or a time out occurs. The following arguments will be passed to the\n`feedCallback` function:\n\n * `error` - Instance of the `Error` class or a sub-class, or `null` if no\n   error occurred\n * `target` - The target parameter as specified in the request\n * `ttl` - The time to live used in the request which triggered this respinse\n * `sent` - An instance of the `Date` class specifying when the first ping\n   was sent for this request (refer to the Round Trip Time section for more\n   information)\n * `rcvd` - An instance of the `Date` class specifying when the request\n   completed (refer to the Round Trip Time section for more information)\n\nOnce a ping response has been received from the target, or more than three\nrequest timed out errors are experienced, the `doneCallback` function will be\ncalled. The following arguments will be passed to the `doneCallback` function:\n\n * `error` - Instance of the `Error` class or a sub-class, or `null` if no\n   error occurred\n * `target` - The target parameter as specified in the request\n\nOnce the `doneCallback` function has been called the request is complete and\nthe `requestCallback` function will no longer be called.\n\nIf the `feedCallback` function returns a true value when called the trace route\nwill stop and the `doneCallback` will be called.\n\nThe following example initiates a trace route to a remote host:\n\n    function doneCb (error, target) {\n        if (error)\n            console.log (target + ": " + error.toString ());\n        else\n            console.log (target + ": Done");\n    }\n\n    function feedCb (error, target, ttl, sent, rcvd) {\n        var ms = rcvd - sent;\n        if (error) {\n            if (error instanceof ping.TimeExceededError) {\n                console.log (target + ": " + error.source + " (ttl="\n                        + ttl + " ms=" + ms +")");\n            } else {\n                console.log (target + ": " + error.toString ()\n                        + " (ttl=" + ttl + " ms=" + ms +")");\n            }\n        } else {\n            console.log (target + ": " + target + " (ttl=" + ttl\n                    + " ms=" + ms +")");\n        }\n    }\n\n    session.traceRoute ("192.168.10.10", 10, feedCb, doneCb);\n\n# Example Programs\n\nExample programs are included under the modules `example` directory.\n\n# Bugs & Known Issues\n\nNone, yet!\n\nBug reports should be sent to <stephen.vickers.sv@gmail.com>.\n\n# Changes\n\n## Version 1.0.0 - 03/02/2013\n\n * Initial release\n\n## Version 1.0.1 - 04/02/2013\n\n * Minor corrections to the README.md\n * Add note to README.md about error handling\n * Timed out errors are now instances of the `ping.RequestTimedOutError`\n   object\n\n## Version 1.0.2 - 11/02/2013\n\n * The RequestTimedOutError class is not being exported\n\n## Version 1.1.0 - 13/02/2013\n\n * Support IPv6\n\n## Version 1.1.1 - 15/02/2013\n\n * The `ping.Session.close()` method was not undefining the sessions raw\n   socket after closing\n * Return self from the `pingHost()` method to chain method calls \n\n## Version 1.1.2 - 04/03/2013\n\n * Use the `raw.Socket.pauseRecv()` and `raw.Socket.resumeRecv()` methods\n   instead of closing a socket when there are no more outstanding requests\n\n## Version 1.1.3 - 07/03/2013\n\n * Sessions were limited to sending 65535 ping requests\n\n## Version 1.1.4 - 09/04/2013\n\n * Add the `packetSize` option to the `createSession()` method to specify how\n   many bytes each ICMP echo request packet should be\n\n## Version 1.1.5 - 17/05/2013\n\n * Incorrectly parsing ICMP error responses resulting in responses matching\n   the wrong request\n * Use a unique session ID per instance of the `Session` class to identify\n   requests and responses sent by a session\n * Added the (internal) `_debugRequest()` and `_debugResponse()` methods, and\n   the `_debug` option to the `createSession()` method\n * Added example programs `ping-ttl.js` and `ping6-ttl.js`\n * Use MIT license instead of GPL\n\n## Version 1.1.6 - 17/05/2013\n\n * Session IDs are now 2 bytes (previously 1 byte), and request IDs are also\n   now 2 bytes (previously 3 bytes)\n * Each ICMP error response now has an associated error class (e.g. the\n   `Time exceeded` response maps onto the `ping.TimeExceededError` class)\n * Call request callbacks with an error when there are no free request IDs\n   because of too many outstanding requests\n\n## Version 1.1.7 - 19/05/2013\n\n * Added the `traceRoute()` method\n * Added the `ttl` option parameter to the `createSession()` method, and\n   updated the example programs `ping-ttl.js` and `ping6-ttl.js` to use it\n * Response callback for `pingHost()` now includes two instances of the\n   `Date` class to specify when a request was sent and a response received\n\n## Version 1.1.8 - 01/07/2013\n\n * Use `raw.Socket.createChecksum()` instead of automatic checksum generation\n\n## Version 1.1.9 - 01/07/2013\n\n * Use `raw.Socket.writeChecksum()` instead of manually rendering checksums\n\n## Version 1.1.10 - 02/04/2014\n\n * Echo requests sent by this module are processed like responses when sent to\n   the `127.0.0.1` and `::1` addresses\n\n# Roadmap\n\nSuggestions and requirements should be sent to <stephen.vickers.sv@gmail.com>.\n\n# License\n\nCopyright (c) 2013 Stephen Vickers\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n\n# Author\n\nStephen Vickers <stephen.vickers.sv@gmail.com>\n',
+36 silly resolved     readmeFilename: 'README.md',
+36 silly resolved     _id: 'net-ping@1.1.10',
+36 silly resolved     _from: 'net-ping@' } ]
+37 info install net-ping@1.1.10 into E:\Git\DNS-Proxy
+38 info installOne net-ping@1.1.10
+39 info E:\Git\DNS-Proxy\node_modules\net-ping unbuild
+40 info preuninstall net-ping@1.1.10
+41 info uninstall net-ping@1.1.10
+42 verbose true,E:\Git\DNS-Proxy\node_modules,E:\Git\DNS-Proxy\node_modules unbuild net-ping@1.1.10
+43 info postuninstall net-ping@1.1.10
+44 verbose tar unpack C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\net-ping\1.1.10\package.tgz
+45 silly lockFile 5ee36422--DNS-Proxy-node-modules-net-ping tar://E:\Git\DNS-Proxy\node_modules\net-ping
+46 verbose lock tar://E:\Git\DNS-Proxy\node_modules\net-ping C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\5ee36422--DNS-Proxy-node-modules-net-ping.lock
+47 silly lockFile 946db9e3-ache-net-ping-1-1-10-package-tgz tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\net-ping\1.1.10\package.tgz
+48 verbose lock tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\net-ping\1.1.10\package.tgz C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\946db9e3-ache-net-ping-1-1-10-package-tgz.lock
+49 silly gunzTarPerm modes [ '755', '644' ]
+50 silly gunzTarPerm extractEntry package.json
+51 silly gunzTarPerm modified mode [ 'package.json', 438, 420 ]
+52 silly gunzTarPerm extractEntry README.md
+53 silly gunzTarPerm modified mode [ 'README.md', 438, 420 ]
+54 silly gunzTarPerm extractEntry index.js
+55 silly gunzTarPerm modified mode [ 'index.js', 438, 420 ]
+56 silly gunzTarPerm extractEntry .hgignore
+57 silly gunzTarPerm modified mode [ '.hgignore', 438, 420 ]
+58 silly gunzTarPerm extractEntry .hgtags
+59 silly gunzTarPerm modified mode [ '.hgtags', 438, 420 ]
+60 silly gunzTarPerm extractEntry example/ping-packet-size.js
+61 silly gunzTarPerm modified mode [ 'example/ping-packet-size.js', 438, 420 ]
+62 silly gunzTarPerm extractEntry example/ping-response-time.js
+63 silly gunzTarPerm modified mode [ 'example/ping-response-time.js', 438, 420 ]
+64 silly gunzTarPerm extractEntry example/ping-ttl.js
+65 silly gunzTarPerm modified mode [ 'example/ping-ttl.js', 438, 420 ]
+66 silly gunzTarPerm extractEntry example/ping.js
+67 silly gunzTarPerm modified mode [ 'example/ping.js', 438, 420 ]
+68 silly gunzTarPerm extractEntry example/ping6-ttl.js
+69 silly gunzTarPerm modified mode [ 'example/ping6-ttl.js', 438, 420 ]
+70 silly gunzTarPerm extractEntry example/ping6.js
+71 silly gunzTarPerm modified mode [ 'example/ping6.js', 438, 420 ]
+72 silly gunzTarPerm extractEntry example/trace-route.js
+73 silly gunzTarPerm modified mode [ 'example/trace-route.js', 438, 420 ]
+74 silly lockFile 5ee36422--DNS-Proxy-node-modules-net-ping tar://E:\Git\DNS-Proxy\node_modules\net-ping
+75 silly lockFile 5ee36422--DNS-Proxy-node-modules-net-ping tar://E:\Git\DNS-Proxy\node_modules\net-ping
+76 silly lockFile 946db9e3-ache-net-ping-1-1-10-package-tgz tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\net-ping\1.1.10\package.tgz
+77 silly lockFile 946db9e3-ache-net-ping-1-1-10-package-tgz tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\net-ping\1.1.10\package.tgz
+78 info preinstall net-ping@1.1.10
+79 verbose readDependencies using package.json deps
+80 verbose readDependencies using package.json deps
+81 verbose cache add [ 'raw-socket@*', null ]
+82 verbose cache add name=undefined spec="raw-socket@*" args=["raw-socket@*",null]
+83 verbose parsed url { protocol: null,
+83 verbose parsed url   slashes: null,
+83 verbose parsed url   auth: null,
+83 verbose parsed url   host: null,
+83 verbose parsed url   port: null,
+83 verbose parsed url   hostname: null,
+83 verbose parsed url   hash: null,
+83 verbose parsed url   search: null,
+83 verbose parsed url   query: null,
+83 verbose parsed url   pathname: 'raw-socket@*',
+83 verbose parsed url   path: 'raw-socket@*',
+83 verbose parsed url   href: 'raw-socket@*' }
+84 verbose cache add name="raw-socket" spec="*" args=["raw-socket","*"]
+85 verbose parsed url { protocol: null,
+85 verbose parsed url   slashes: null,
+85 verbose parsed url   auth: null,
+85 verbose parsed url   host: null,
+85 verbose parsed url   port: null,
+85 verbose parsed url   hostname: null,
+85 verbose parsed url   hash: null,
+85 verbose parsed url   search: null,
+85 verbose parsed url   query: null,
+85 verbose parsed url   pathname: '*',
+85 verbose parsed url   path: '*',
+85 verbose parsed url   href: '*' }
+86 verbose addNamed [ 'raw-socket', '*' ]
+87 verbose addNamed [ null, '*' ]
+88 silly lockFile 299fe17b-raw-socket raw-socket@*
+89 verbose lock raw-socket@* C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\299fe17b-raw-socket.lock
+90 silly addNameRange { name: 'raw-socket', range: '*', hasData: false }
+91 verbose url raw raw-socket
+92 verbose url resolving [ 'https://registry.npmjs.org/', './raw-socket' ]
+93 verbose url resolved https://registry.npmjs.org/raw-socket
+94 info trying registry request attempt 1 at 13:27:49
+95 verbose etag "2PJKDFIV3BNC071PXDE1RL780"
+96 http GET https://registry.npmjs.org/raw-socket
+97 http 304 https://registry.npmjs.org/raw-socket
+98 silly registry.get cb [ 304,
+98 silly registry.get   { date: 'Thu, 22 May 2014 19:27:54 GMT',
+98 silly registry.get     server: 'Apache',
+98 silly registry.get     via: '1.1 varnish',
+98 silly registry.get     'last-modified': 'Thu, 22 May 2014 19:27:54 GMT',
+98 silly registry.get     'cache-control': 'max-age=1',
+98 silly registry.get     etag: '"2PJKDFIV3BNC071PXDE1RL780"',
+98 silly registry.get     'x-served-by': 'cache-lax1422-LAX',
+98 silly registry.get     'x-cache': 'MISS',
+98 silly registry.get     'x-cache-hits': '0',
+98 silly registry.get     'x-timer': 'S1400786874.119980574,VS0,VE175',
+98 silly registry.get     vary: 'Accept',
+98 silly registry.get     'content-length': '0',
+98 silly registry.get     'keep-alive': 'timeout=10, max=50',
+98 silly registry.get     connection: 'Keep-Alive' } ]
+99 verbose etag raw-socket from cache
+100 silly addNameRange number 2 { name: 'raw-socket', range: '*', hasData: true }
+101 silly addNameRange versions [ 'raw-socket',
+101 silly addNameRange   [ '1.0.0',
+101 silly addNameRange     '1.0.1',
+101 silly addNameRange     '1.0.2',
+101 silly addNameRange     '1.1.0',
+101 silly addNameRange     '1.1.1',
+101 silly addNameRange     '1.1.2',
+101 silly addNameRange     '1.1.3',
+101 silly addNameRange     '1.1.4',
+101 silly addNameRange     '1.1.5',
+101 silly addNameRange     '1.1.6',
+101 silly addNameRange     '1.1.7',
+101 silly addNameRange     '1.2.0',
+101 silly addNameRange     '1.2.1',
+101 silly addNameRange     '1.2.2' ] ]
+102 verbose addNamed [ 'raw-socket', '1.2.2' ]
+103 verbose addNamed [ '1.2.2', '1.2.2' ]
+104 silly lockFile c4f59a52-raw-socket-1-2-2 raw-socket@1.2.2
+105 verbose lock raw-socket@1.2.2 C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\c4f59a52-raw-socket-1-2-2.lock
+106 silly lockFile c4f59a52-raw-socket-1-2-2 raw-socket@1.2.2
+107 silly lockFile c4f59a52-raw-socket-1-2-2 raw-socket@1.2.2
+108 silly lockFile 299fe17b-raw-socket raw-socket@*
+109 silly lockFile 299fe17b-raw-socket raw-socket@*
+110 silly resolved [ { name: 'raw-socket',
+110 silly resolved     version: '1.2.2',
+110 silly resolved     description: 'Raw sockets for Node.js.',
+110 silly resolved     main: 'index.js',
+110 silly resolved     directories: { example: 'example' },
+110 silly resolved     dependencies: {},
+110 silly resolved     contributors: [ [Object] ],
+110 silly resolved     repository:
+110 silly resolved      { type: 'mercurial',
+110 silly resolved        url: 'https://bitbucket.org/stephenwvickers/node-raw-socket' },
+110 silly resolved     keywords:
+110 silly resolved      [ 'checksum',
+110 silly resolved        'checksums',
+110 silly resolved        'htonl',
+110 silly resolved        'htons',
+110 silly resolved        'net',
+110 silly resolved        'network',
+110 silly resolved        'ntohl',
+110 silly resolved        'ntohs',
+110 silly resolved        'raw',
+110 silly resolved        'raw-socket',
+110 silly resolved        'raw-sockets',
+110 silly resolved        'socket',
+110 silly resolved        'sockets' ],
+110 silly resolved     author:
+110 silly resolved      { name: 'Stephen Vickers',
+110 silly resolved        email: 'stephen.vickers.sv@gmail.com' },
+110 silly resolved     license: 'MIT',
+110 silly resolved     scripts: { install: 'node-gyp rebuild' },
+110 silly resolved     gypfile: true,
+110 silly resolved     readme: '\n# raw-socket - [homepage][homepage]\n\nThis module implements raw sockets for [Node.js][nodejs].\n\n*This module has been created primarily to facilitate implementation of the\n[net-ping][net-ping] module.*\n\nThis module is installed using [node package manager (npm)][npm]:\n\n    # This module contains C++ source code which will be compiled\n    # during installation using node-gyp.  A suitable build chain\n    # must be configured before installation.\n    \n    npm install raw-socket\n\nIt is loaded using the `require()` function:\n\n    var raw = require ("raw-socket");\n\nRaw sockets can then be created, and data sent using [Node.js][nodejs]\n`Buffer` objects:\n\n    var socket = raw.createSocket ({protocol: raw.Protocol.None});\n\n    socket.on ("message", function (buffer, source) {\n        console.log ("received " + buffer.length + " bytes from " + source);\n    });\n    \n    socket.send (buffer, 0, buffer.length, "1.1.1.1", function (error, bytes) {\n        if (error)\n            console.log (error.toString ());\n    });\n\n[homepage]: http://re-tool.org "Homepage"\n[nodejs]: http://nodejs.org "Node.js"\n[net-ping]: https://npmjs.org/package/net-ping "net-ping"\n[npm]: https://npmjs.org/ "npm"\n\n# Network Protocol Support\n\nThe raw sockets exposed by this module support IPv4 and IPv6.\n\nRaw sockets are created using the operating systems `socket()` function, and\nthe socket type `SOCK_RAW` specified.\n\n# Raw Socket Behaviour\n\nRaw sockets behave in different ways depending on operating system and\nversion, and may support different socket options.\n\nSome operating system versions may restrict the use of raw sockets to\nprivileged users.  If this is the case an exception will be thrown on socket\ncreation using a message similar to `Operation not permitted` (this message\nis likely to be different depending on operating system version).\n\nThe appropriate operating system documentation should be consulted to\nunderstand how raw sockets will behave before attempting to use this module.\n\n# Keeping The [Node.js][nodejs] Event Loop Alive\n\nThis module uses the `libuv` library to integrate into the [Node.js][nodejs]\nevent loop - this library is also used by [Node.js][nodejs].  An underlying\n `libuv` library `poll_handle_t` event watcher is used to monitor the\nunderlying operating system raw socket used by a socket object.\n\nAll the while a socket object exists, and the sockets `close()` method has not\nbeen called, the raw socket will keep the [Node.js][nodejs] event loop alive\nwhich will prevent a program from exiting.\n\nThis module exports four methods which a program can use to control this\nbehaviour.\n\nThe `pauseRecv()` and `pauseSend()` methods stop the underlying `poll_handle_t`\nevent watcher used by a socket from monitoring for readable and writeable\nevents.  While the `resumeRecv()` and `resumeSend()` methods start the\nunderlying `poll_handle_t` event watcher used by a socket allowing it to\nmonitor for readable and writeable events.\n\nEach socket object also exports the `recvPaused` and `sendPaused` boolean\nattributes to determine the state of the underlying `poll_handle_t` event\nwatcher used by a socket.\n\nSocket creation can be expensive on some platforms, and the above methods offer\nan alternative to closing and deleting a socket to prevent it from keeping the\n[Node.js][nodejs] event loop alive.\n\nThe [Node.js][nodejs] [net-ping][net-ping] module offers a concrete example\nof using these methods.  Since [Node.js][nodejs] offers no raw socket support\nthis module is used to implement ICMP echo (ping) support.  Once all ping\nrequests have been processed by the [net-ping][net-ping] module the\n`pauseRecv()` and `pauseSend()` methods are used to allow a program to exit if\nrequired.\n\nThe following example stops the underlying `poll_handle_t` event watcher used\nby a socket from generating writeable events, however since readable events\nwill still be watched for the program will not exit immediately:\n\n    if (! socket.recvPaused)\n        socket.pauseRecv ();\n\nThe following can the be used to resume readable events:\n\n    if (socket.recvPaused)\n        socket.resumeRecv ();\n\nThe following example stops the underlying `poll_handle_t` event watcher used\nby a socket from generating both readable and writeable events, if no other\nevent watchers have been setup (e.g. `setTimeout()`) the program will exit.\n\n    if (! socket.recvPaused)\n        socket.pauseRecv ();\n    if (! socket.sendPaused)\n        socket.pauseSend ();\n\nThe following can the be used to resume both readable and writeable events:\n\n    if (socket.recvPaused)\n        socket.resumeRecv ();\n    if (socket.sendPaused)\n        socket.resumeSend ();\n\nWhen data is sent using a sockets `send()` method the `resumeSend()` method\nwill be called if the sockets `sendPaused` attribute is `true`, however the\n`resumeRecv()` method will not be called regardless of whether the sockets\n`recvPaused` attribute is `true` or `false`.\n\n[nodejs]: http://nodejs.org "Node.js"\n[net-ping]: http://npmjs.org/package/net-ping "net-ping"\n\n# Constants\n\nThe following sections describe constants exported and used by this module.\n\n## raw.AddressFamily\n\nThis object contains constants which can be used for the `addressFamily`\noption to the `createSocket()` function exposed by this module.  This option\nspecifies the IP protocol version to use when creating the raw socket.\n\nThe following constants are defined in this object:\n\n * `IPv4` - IPv4 protocol\n * `IPv6` - IPv6 protocol\n\n## raw.Protocol\n\nThis object contains constants which can be used for the `protocol` option to\nthe `createSocket()` function exposed by this module.  This option specifies\nthe protocol number to place in the protocol field of IP headers generated by\nthe operating system.\n\nThe following constants are defined in this object:\n\n * `None` - protocol number 0\n * `ICMP` - protocol number 1\n * `TCP` - protocol number 6\n * `UDP` - protocol number 17\n * `ICMPv6` - protocol number 58\n\n## raw.SocketLevel\n\nThis object contains constants which can be used for the `level` parameter to\nthe `getOption()` and `setOption()` methods exposed by this module.\n\nThe following constants are defined in this object:\n\n * `SOL_SOCKET`\n * `IPPROTO_IP`\n * `IPPROTO_IPV6`\n\n## raw.SocketOption\n\nThis object contains constants which can be used for the `option` parameter to\nthe `getOption()` and `setOption()` methods exposed by this module.\n\nThe following constants are defined in this object:\n\n * `SO_RCVBUF`\n * `SO_RCVTIMEO`\n * `SO_SNDBUF`\n * `SO_SNDTIMEO`\n * `IP_HDRINCL`\n * `IP_OPTIONS`\n * `IP_TOS`\n * `IP_TTL`\n * `IPV6_TTL`\n * `IPV6_UNICAST_HOPS`\n * `IPV6_V6ONLY`\n\n*The `IPV6_TTL` socket option is not known to be defined by any operating\nsystem, it is provided in convenience to be synonymous with IPv4*\n\nFor Windows platforms the following constant is also defined:\n\n * `IPV6_HDRINCL`\n\n# Using This Module\n\nRaw sockets are represented by an instance of the `Socket` class.  This\nmodule exports the `createSocket()` function which is used to create\ninstances of the `Socket` class.\n\nThe module also exports a number of stubs which call through to a number of\nfunctions provided by the operating system, i.e. `htonl()`.\n\nThis module also exports a function to generate protocol checksums.\n\n## raw.createChecksum (bufferOrObject, [bufferOrObject, ...])\n\nThe `createChecksum()` function creates and returns a 16 bit one\'s complement\nof the one\'s complement sum for all the data specified in one or more\n[Node.js][nodejs] `Buffer` objects.  This is useful for creating checksums for\nprotocols such as IP, TCP, UDP and ICMP.\n\nThe `bufferOrObject` parameter can be one of two types.  The first is a\n[Node.js][nodejs] `Buffer` object.  In this case a checksum is calculated from\nall the data it contains.  The `bufferOrObject` parameter can also be an\nobject which must contain the following attributes:\n\n * `buffer` - A [Node.js][nodejs] `Buffer` object which contains data which\n   to generate a checksum for\n * `offset` - Skip this number of bytes from the beginning of `buffer`\n * `length` - Only generate a checksum for this number of bytes in `buffer`\n   from `offset`\n\nThe second parameter type provides control over how much of the data in a\n[Node.js][nodejs] `Buffer` object a checksum should be generated for.\n\nWhen more than one parameter is passed a single checksum is calculated as if\nthe data in in all parameters were in a single buffer.  This is useful for\nwhen calulating checksums for TCP and UDP for example - where a psuedo header\nmust be created and used for checksum calculation.\n\nIn this case two buffers can be passed, the first containing the psuedo header\nand the second containing the real TCP packet, and the offset and length\nparameters used to specify the bounds of the TCP packet payload.\n\nThe following example generates a checksum for a TCP packet and its psuedo\nheader:\n\n    var sum = raw.createChecksum (pseudo_header, {buffer: tcp_packet,\n            offset: 20, length: tcp_packet.length - 20});\n\nBoth buffers will be treated as one, i.e. as if the data at offset `20` in\n`tcp_packet` had followed all data in `pseudo_header` - as if they were one\nbuffer.\n\n## raw.writeChecksum (buffer, offset, checksum)\n\nThe `writeChecksum()` function writes a checksum created by the\n`raw.createChecksum()` function to the [Node.js][nodejs] `Buffer` object \n`buffer` at offsets `offset` and `offset` + 1.\n\nThe following example generates and writes a checksum at offset `2` in a\n[Node.js][nodejs] `Buffer` object:\n\n    raw.writeChecksum (buffer, 2, raw.createChecksum (buffer));\n\n## raw.htonl (uint32)\n\nThe `htonl()` function converts a 32 bit unsigned integer from host byte\norder to network byte order and returns the result.  This function is simply\na stub through to the operating systems `htonl()` function.\n\n## raw.htons (uint16)\n\nThe `htons()` function converts a 16 bit unsigned integer from host byte\norder to network byte order and returns the result.  This function is simply\na stub through to the operating systems `htons()` function.\n\n## raw.ntohl (uint32)\n\nThe `ntohl()` function converts a 32 bit unsigned integer from network byte\norder to host byte order and returns the result.  This function is simply\na stub through to the operating systems `ntohl()` function.\n\n## raw.ntohs (uint16)\n\nThe `ntohs()` function converts a 16 bit unsigned integer from network byte\norder to host byte order and returns the result.  This function is simply\na stub through to the operating systems `ntohs()` function.\n\n## raw.createSocket ([options])\n\nThe `createSocket()` function instantiates and returns an instance of the\n`Socket` class:\n\n    // Default options\n    var options = {\n        addressFamily: raw.AddressFamily.IPv4,\n        protocol: raw.Protocol.None,\n        bufferSize: 4096,\n        generateChecksums: false,\n        checksumOffset: 0\n    };\n    \n    var socket = raw.createSocket (options);\n\nThe optional `options` parameter is an object, and can contain the following\nitems:\n\n * `addressFamily` - Either the constant `raw.AddressFamily.IPv4` or the\n   constant `raw.AddressFamily.IPv6`, defaults to the constant\n   `raw.AddressFamily.IPv4`\n * `protocol` - Either one of the constants defined in the `raw.Protocol`\n   object or the protocol number to use for the socket, defaults to the\n   consant `raw.Protocol.None`\n * `bufferSize` - Size, in bytes, of the sockets internal receive buffer,\n   defaults to 4096\n * `generateChecksums` - Either `true` or `false` to enable or disable the\n   automatic checksum generation feature, defaults to `false`\n * `checksumOffset` - When `generateChecksums` is `true` specifies how many\n   bytes to index into the send buffer to write automatically generated\n   checksums, defaults to `0`\n\nAn exception will be thrown if the underlying raw socket could not be created.\nThe error will be an instance of the `Error` class.\n\nThe `protocol` parameter, or its default value of the constant\n`raw.Protocol.None`, will be specified in the protocol field of each IP\nheader.\n\n## socket.on ("close", callback)\n\nThe `close` event is emitted by the socket when the underlying raw socket\nis closed.\n\nNo arguments are passed to the callback.\n\nThe following example prints a message to the console when the socket is\nclosed:\n\n    socket.on ("close", function () {\n        console.log ("socket closed");\n    });\n\n## socket.on ("error", callback)\n\nThe `error` event is emitted by the socket when an error occurs sending or\nreceiving data.\n\nThe following arguments will be passed to the `callback` function:\n\n * `error` - An instance of the `Error` class, the exposed `message` attribute\n   will contain a detailed error message.\n\nThe following example prints a message to the console when an error occurs,\nafter which the socket is closed:\n\n    socket.on ("error", function (error) {\n        console.log (error.toString ());\n        socket.close ();\n    });\n\n## socket.on ("message", callback)\n\nThe `message` event is emitted by the socket when data has been received.\n\nThe following arguments will be passed to the `callback` function:\n\n * `buffer` - A [Node.js][nodejs] `Buffer` object containing the data\n   received, the buffer will be sized to fit the data received, that is the\n   `length` attribute of buffer will specify how many bytes were received\n * `address` - For IPv4 raw sockets the dotted quad formatted source IP\n   address of the message, e.g `192.168.1.254`, for IPv6 raw sockets the\n   compressed formatted source IP address of the message, e.g.\n   `fe80::a00:27ff:fe2a:3427`\n\nThe following example prints received messages in hexadecimal to the console:\n\n    socket.on ("message", function (buffer, address) {\n        console.log ("received " + buffer.length + " bytes from " + address\n                + ": " + buffer.toString ("hex"));\n    });\n\n## socket.generateChecksums (generate, offset)\n\nThe `generateChecksums()` method is used to specify whether automatic checksum\ngeneration should be performed by the socket.\n\nThe `generate` parameter is either `true` or `false` to enable or disable the\nfeature.  The optional `offset` parameter specifies how many bytes to index\ninto the send buffer when writing the generated checksum to the send buffer.\n\nThe following example enables automatic checksum generation at offset 2\nresulting in checksums being written to byte 3 and 4 of the send buffer\n(offsets start from 0, meaning byte 1):\n\n    socket.generateChecksums (true, 2);\n\n## socket.getOption (level, option, buffer, length)\n\nThe `getOption()` method gets a socket option using the operating systems\n`getsockopt()` function.\n\nThe `level` parameter is one of the constants defined in the `raw.SocketLevel`\nobject.  The `option` parameter is one of the constants defined in the\n`raw.SocketOption` object.  The `buffer` parameter is a [Node.js][nodejs]\n`Buffer` object where the socket option value will be written.  The `length`\nparameter specifies the size of the `buffer` parameter.\n\nIf an error occurs an exception will be thrown, the exception will be an\ninstance of the `Error` class.\n\nThe number of bytes written into the `buffer` parameter is returned, and can\ndiffer from the amount of space available.\n\nThe following example retrieves the current value of `IP_TTL` socket option:\n\n    var level = raw.SocketLevel.IPPROTO_IP;\n    var option = raw.SocketOption.IP_TTL;\n    \n    # IP_TTL is a signed integer on some platforms so a 4 byte buffer is used\n    var buffer = new Buffer (4);\n    \n    var written = socket.getOption (level, option, buffer, buffer.length);\n    \n    console.log (buffer.toString ("hex"), 0, written);\n\n## socket.send (buffer, offset, length, address, beforeCallback, afterCallback)\n\nThe `send()` method sends data to a remote host.\n\nThe `buffer` parameter is a [Node.js][nodejs] `Buffer` object containing the\ndata to be sent.  The `length` parameter specifies how many bytes from\n`buffer`, beginning at offset `offset`, to send.  For IPv4 raw sockets the\n`address` parameter contains the dotted quad formatted IP address of the\nremote host to send the data to, e.g `192.168.1.254`, for IPv6 raw sockets the\n`address` parameter contains the compressed formatted IP address of the remote\nhost to send the data to, e.g. `fe80::a00:27ff:fe2a:3427`.  If provided the\noptional `beforeCallback` function is called right before the data is actually\nsent using the underlying raw socket, giving users the opportunity to perform\npre-send actions such as setting a socket option, e.g. the IP header TTL.  No\narguments are passed to the `beforeCallback` function.  The `afterCallback`\nfunction is called once the data has been sent.  The following arguments will\nbe passed to the `afterCallback` function:\n\n * `error` - Instance of the `Error` class, or `null` if no error occurred\n * `bytes` - Number of bytes sent\n\nThe following example sends a ICMP ping message to a remote host, before the\nrequest is actually sent the IP header TTL is modified, and modified again\nafter the data has been sent:\n\n    // ICMP echo (ping) request, checksum should be ok\n    var buffer = new Buffer ([\n            0x08, 0x00, 0x43, 0x52, 0x00, 0x01, 0x0a, 0x09,\n            0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68,\n            0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70,\n            0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x61,\n            0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69]);\n\n    var socketLevel = raw.SocketLevel.IPPROTO_IP\n    var socketOption = raw.SocketOption.IP_TTL;\n\n    function beforeSend () {\n        socket.setOption (socketLevel, socketOption, 1);\n    }\n    \n    function afterSend (error, bytes) {\n        if (error)\n            console.log (error.toString ());\n        else\n            console.log ("sent " + bytes + " bytes");\n        \n        socket.setOption (socketLevel, socketOption, 1);\n    }\n\n    socket.send (buffer, 0, buffer.length, target, beforeSend, afterSend);\n\n## socket.setOption (level, option, buffer, length)\n\nThe `setOption()` method sets a socket option using the operating systems\n`setsockopt()` function.\n\nThe `level` parameter is one of the constants defined in the `raw.SocketLevel`\nobject.  The `option` parameter is one of the constants defined in the\n`raw.SocketOption` object.  The `buffer` parameter is a [Node.js][nodejs]\n`Buffer` object where the socket option value is specified.  The `length`\nparameter specifies how much space the option value occupies in the `buffer`\nparameter.\n\nIf an error occurs an exception will be thrown, the exception will be an\ninstance of the `Error` class.\n\nThe following example sets the value of `IP_TTL` socket option to `1`:\n\n    var level = raw.SocketLevel.IPPROTO_IP;\n    var option = raw.SocketOption.IP_TTL;\n    \n    # IP_TTL is a signed integer on some platforms so a 4 byte buffer is used,\n    # x86 computers use little-endian format so specify bytes reverse order\n    var buffer = new Buffer ([0x01, 0x00, 0x00, 0x00]);\n    \n    socket.setOption (level, option, buffer, buffer.length);\n\nTo avoid dealing with endianess the `setOption()` method supports a three\nargument form which can be used for socket options requiring a 32bit unsigned\ninteger value (for example the `IP_TTL` socket option used in the previous\nexample).  Its signature is as follows:\n\n    socket.setOption (level, option, value)\n\nThe previous example can be re-written to use this form:\n\n    var level = raw.SocketLevel.IPPROTO_IP;\n    var option = raw.SocketOption.IP_TTL;\n\n    socket.setOption (level, option, 1);\n\n# Example Programs\n\nExample programs are included under the modules `example` directory.\n\n# Bugs & Known Issues\n\nNone, yet!\n\nBug reports should be sent to <stephen.vickers.sv@gmail.com>.\n\n# Changes\n\n## Version 1.0.0 - 29/01/2013\n\n * Initial release\n\n## Version 1.0.1 - 01/02/2013\n\n * Move `SOCKET_ERRNO` define from `raw.cc` to `raw.h`\n * Error in exception thrown by `SocketWrap::New` in `raw.cc` stated that two\n   arguments were required, this should be one\n * Corrections to the README.md\n * Missing includes causes compilation error on some systems (maybe Node\n   version dependant)\n\n## Version 1.0.2 - 02/02/2013\n\n * Support automatic checksum generation\n\n## Version 1.1.0 - 13/02/2013\n\n * The [net-ping][net-ping] module is now implemented so update the note about\n   it in the first section of the README.md\n * Support IPv6\n * Support the `IP_HDRINCL` socket option via the `noIpHeader` option to the\n   `createSocket()` function and the `noIpHeader()` method exposed by the\n   `Socket` class\n\n## Version 1.1.1 - 14/02/2013\n\n * IP addresses not being validated\n\n## Version 1.1.2 - 15/02/2013\n\n * Default protocol option to `createSession()` was incorrect in the README.md\n * The `session.on("message")` example used `message` instead of `buffer` in\n   the README.md\n\n## Version 1.1.3 - 04/03/2013\n\n * `raw.Socket.onSendReady()` emit\'s an error when `raw.SocketWrap.send()`\n   throws an exception when it should call the `req.callback` callback\n * Added the `pauseRecv()`, `resumeRecv()`, `pauseSend()` and `resumeSend()`\n   methods\n\n[net-ping]: https://npmjs.org/package/net-ping "net-ping"\n\n## Version 1.1.4 - 05/03/2013\n\n * Cleanup documentation for the `pauseSend()`, `pauseRecv()`, `resumeSend()`\n   and `resumeRecv()` methods in the README.md\n\n## Version 1.1.5 - 09/05/2013\n\n * Reformated lines in the README.md file inline with the rest of the file\n * Removed the `noIpHeader()` method (the `setOption()` method should be\n   used to configure the `IP_HDRINCL` socket option - and possibly\n   `IPV6_HDRINCL` on Windows platforms), and removed the `Automatic IP Header\n   Generation` section from the README.md file\n * Added the `setOption()` and `getOption()` methods, and added the\n   `SocketLevel` and `SocketOption` constants\n * Tidied up the example program `ping-no-ip-header.js` (now uses the\n   `setOption()` method to configure the `IP_HDRINCL` socket option)\n * Tidied up the example program `ping6-no-ip-header.js` (now uses the\n   `setOption()` method to configure the `IPV6_HDRINCL` socket option)\n * Added the example program `get-option.js`\n * Added the example program `ping-set-option-ip-ttl.js`\n * Use MIT license instead of GPL\n\n## Version 1.1.6 - 18/05/2013\n\n * Added the `beforeCallback` parameter to the `send()` method, and renamed the\n   `callback` parameter to `afterCallback`\n * Fixed a few typos in the README.md file\n * Modified the example program `ping-set-option-ip-ttl.js` to use the\n   `beforeCallback` parameter to the `send()` method\n * The example program `ping6-no-ip-header.js` was not passing the correct\n   arguments to the `setOption()` method\n\n## Version 1.1.7 - 23/06/2013\n\n * Added the `htonl()`, `htons()`, `ntohl()`, and `ntohs()` functions, and\n   associated example programs\n * Added the `createChecksum()` function, and associated example program\n\n## Version 1.1.8 - 01/07/2013\n\n * Added the `writeChecksum()` function\n * Removed the "Automated Checksum Generation" feature - this has been\n   replaced with the `createChecksum()` and `writeChecksum()` functions\n\n## Version 1.2.0 - 02/07/2013\n\n * Up version number to 1.2.0 (we should have done this for 1.1.8 because it\n   introduced some API breaking changes)\n\n## Version 1.2.1 - 15/08/2013\n\n * Receiving `Assertion \'!(handle->flags & (UV_CLOSING | UV_CLOSED))\' failed`\n   error after a number of pings - the underlying `uv_poll_t` handle was being\n   closed twice\n\n## Version 1.2.2 - 21/09/2013\n\n * Using uint16_t instead of uint32_t on line 87 in src/raw.cc for a value\n   that is out of range\n * raw::SocketWrap::pause() only uses the first argument\n * Delete uv_poll_t watcher in uv_close() OnClose callback instead of in the\n   wrapped C++ objects deconstructor\n\n# Roadmap\n\nIn no particular order:\n\n * Enhance performance by moving the send queue into the C++ raw::SocketWrap\n   class\n\nSuggestions and requirements should be sent to <stephen.vickers.sv@gmail.com>.\n\n# License\n\nCopyright (c) 2013 Stephen Vickers\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n\n# Author\n\nStephen Vickers <stephen.vickers.sv@gmail.com>\n',
+110 silly resolved     readmeFilename: 'README.md',
+110 silly resolved     _id: 'raw-socket@1.2.2',
+110 silly resolved     _from: 'raw-socket@*' } ]
+111 info install raw-socket@1.2.2 into E:\Git\DNS-Proxy\node_modules\net-ping
+112 info installOne raw-socket@1.2.2
+113 info E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket unbuild
+114 verbose tar unpack C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\raw-socket\1.2.2\package.tgz
+115 silly lockFile 37f91e19-net-ping-node-modules-raw-socket tar://E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket
+116 verbose lock tar://E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\37f91e19-net-ping-node-modules-raw-socket.lock
+117 silly lockFile 4e7bc089-che-raw-socket-1-2-2-package-tgz tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\raw-socket\1.2.2\package.tgz
+118 verbose lock tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\raw-socket\1.2.2\package.tgz C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\4e7bc089-che-raw-socket-1-2-2-package-tgz.lock
+119 silly gunzTarPerm modes [ '755', '644' ]
+120 silly gunzTarPerm extractEntry package.json
+121 silly gunzTarPerm modified mode [ 'package.json', 438, 420 ]
+122 silly gunzTarPerm extractEntry .npmignore
+123 silly gunzTarPerm modified mode [ '.npmignore', 438, 420 ]
+124 silly gunzTarPerm extractEntry README.md
+125 silly gunzTarPerm modified mode [ 'README.md', 438, 420 ]
+126 silly gunzTarPerm extractEntry index.js
+127 silly gunzTarPerm modified mode [ 'index.js', 438, 420 ]
+128 silly gunzTarPerm extractEntry binding.gyp
+129 silly gunzTarPerm modified mode [ 'binding.gyp', 438, 420 ]
+130 silly gunzTarPerm extractEntry example/create-checksum.js
+131 silly gunzTarPerm modified mode [ 'example/create-checksum.js', 438, 420 ]
+132 silly gunzTarPerm extractEntry example/htonl.js
+133 silly gunzTarPerm modified mode [ 'example/htonl.js', 438, 420 ]
+134 silly gunzTarPerm extractEntry example/htons.js
+135 silly gunzTarPerm modified mode [ 'example/htons.js', 438, 420 ]
+136 silly gunzTarPerm extractEntry example/ntohl.js
+137 silly gunzTarPerm modified mode [ 'example/ntohl.js', 438, 420 ]
+138 silly gunzTarPerm extractEntry example/get-option.js
+139 silly gunzTarPerm modified mode [ 'example/get-option.js', 438, 420 ]
+140 silly gunzTarPerm extractEntry example/ping-no-ip-header.js
+141 silly gunzTarPerm modified mode [ 'example/ping-no-ip-header.js', 438, 420 ]
+142 silly gunzTarPerm extractEntry example/ping-set-option-ip-ttl.js
+143 silly gunzTarPerm modified mode [ 'example/ping-set-option-ip-ttl.js', 438, 420 ]
+144 silly gunzTarPerm extractEntry example/ping.js
+145 silly gunzTarPerm modified mode [ 'example/ping.js', 438, 420 ]
+146 silly gunzTarPerm extractEntry example/ping6-no-ip-header.js
+147 silly gunzTarPerm modified mode [ 'example/ping6-no-ip-header.js', 438, 420 ]
+148 silly gunzTarPerm extractEntry example/ping6.js
+149 silly gunzTarPerm modified mode [ 'example/ping6.js', 438, 420 ]
+150 silly gunzTarPerm extractEntry example/ntohs.js
+151 silly gunzTarPerm modified mode [ 'example/ntohs.js', 438, 420 ]
+152 silly gunzTarPerm extractEntry src/raw.cc
+153 silly gunzTarPerm modified mode [ 'src/raw.cc', 438, 420 ]
+154 silly gunzTarPerm extractEntry src/raw.h
+155 silly gunzTarPerm modified mode [ 'src/raw.h', 438, 420 ]
+156 silly lockFile 37f91e19-net-ping-node-modules-raw-socket tar://E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket
+157 silly lockFile 37f91e19-net-ping-node-modules-raw-socket tar://E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket
+158 silly lockFile 4e7bc089-che-raw-socket-1-2-2-package-tgz tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\raw-socket\1.2.2\package.tgz
+159 silly lockFile 4e7bc089-che-raw-socket-1-2-2-package-tgz tar://C:\Users\utkarsh.goel\AppData\Roaming\npm-cache\raw-socket\1.2.2\package.tgz
+160 info preinstall raw-socket@1.2.2
+161 verbose readDependencies using package.json deps
+162 verbose readDependencies using package.json deps
+163 silly resolved []
+164 verbose about to build E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket
+165 info build E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket
+166 verbose linkStuff [ false,
+166 verbose linkStuff   false,
+166 verbose linkStuff   false,
+166 verbose linkStuff   'E:\\Git\\DNS-Proxy\\node_modules\\net-ping\\node_modules' ]
+167 info linkStuff raw-socket@1.2.2
+168 verbose linkBins raw-socket@1.2.2
+169 verbose linkMans raw-socket@1.2.2
+170 verbose rebuildBundles raw-socket@1.2.2
+171 info install raw-socket@1.2.2
+172 verbose unsafe-perm in lifecycle true
+173 info raw-socket@1.2.2 Failed to exec install script
+174 info E:\Git\DNS-Proxy\node_modules\net-ping\node_modules\raw-socket unbuild
+175 info preuninstall raw-socket@1.2.2
+176 info uninstall raw-socket@1.2.2
+177 verbose false,E:\Git\DNS-Proxy\node_modules,E:\Git\DNS-Proxy\node_modules\net-ping\node_modules unbuild raw-socket@1.2.2
+178 info postuninstall raw-socket@1.2.2
+179 verbose about to build E:\Git\DNS-Proxy\node_modules\net-ping
+180 info E:\Git\DNS-Proxy\node_modules\net-ping unbuild
+181 info preuninstall net-ping@1.1.10
+182 info uninstall net-ping@1.1.10
+183 verbose true,E:\Git\DNS-Proxy\node_modules,E:\Git\DNS-Proxy\node_modules unbuild net-ping@1.1.10
+184 info postuninstall net-ping@1.1.10
+185 error raw-socket@1.2.2 install: `node-gyp rebuild`
+185 error Exit status 1
+186 error Failed at the raw-socket@1.2.2 install script.
+186 error This is most likely a problem with the raw-socket package,
+186 error not with npm itself.
+186 error Tell the author that this fails on your system:
+186 error     node-gyp rebuild
+186 error You can get their info via:
+186 error     npm owner ls raw-socket
+186 error There is likely additional logging output above.
+187 error System Windows_NT 6.2.9200
+188 error command "C:\\Program Files (x86)\\nodejs\\\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "net-ping"
+189 error cwd E:\Git\DNS-Proxy
+190 error node -v v0.10.26
+191 error npm -v 1.4.3
+192 error code ELIFECYCLE
+193 verbose exit [ 1, true ]

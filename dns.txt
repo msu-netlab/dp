@@ -1,0 +1,84 @@
+
+Windows IP Configuration
+
+    1.0.0.127.in-addr.arpa
+    ----------------------------------------
+    Record Name . . . . . : 1.0.0.127.in-addr.arpa.
+    Record Type . . . . . : 12
+    Time To Live  . . . . : 0
+    Data Length . . . . . : 8
+    Section . . . . . . . : Answer
+    PTR Record  . . . . . : localhost
+
+
+    hunterfox.mshome.net
+    ----------------------------------------
+    Record Name . . . . . : HunterFox.mshome.net
+    Record Type . . . . . : 1
+    Time To Live  . . . . : 0
+    Data Length . . . . . : 4
+    Section . . . . . . . : Answer
+    A (Host) Record . . . : 192.168.137.1
+
+
+    Record Name . . . . . : HunterFox.mshome.net
+    Record Type . . . . . : 1
+    Time To Live  . . . . : 0
+    Data Length . . . . . : 4
+    Section . . . . . . . : Answer
+    A (Host) Record . . . : 192.168.137.1
+
+
+    hunterfox.mshome.net
+    ----------------------------------------
+    No records of type AAAA
+
+
+    1.137.168.192.in-addr.arpa
+    ----------------------------------------
+    Record Name . . . . . : 1.137.168.192.in-addr.arpa.
+    Record Type . . . . . : 12
+    Time To Live  . . . . : 0
+    Data Length . . . . . : 8
+    Section . . . . . . . : Answer
+    PTR Record  . . . . . : HunterFox.mshome.net
+
+
+    Record Name . . . . . : 1.137.168.192.in-addr.arpa.
+    Record Type . . . . . : 12
+    Time To Live  . . . . : 0
+    Data Length . . . . . : 8
+    Section . . . . . . . : Answer
+    PTR Record  . . . . . : HunterFox.mshome.net
+
+
+    localhost
+    ----------------------------------------
+    Record Name . . . . . : localhost
+    Record Type . . . . . : 1
+    Time To Live  . . . . : 1200
+    Data Length . . . . . : 4
+    Section . . . . . . . : Question
+    A (Host) Record . . . : 127.0.0.1
+
+
+    localhost
+    ----------------------------------------
+    Record Name . . . . . : localhost
+    Record Type . . . . . : 28
+    Time To Live  . . . . : 1200
+    Data Length . . . . . : 16
+    Section . . . . . . . : Question
+    AAAA Record . . . . . : ::1
+
+
+    nl.cs.montana.edu
+    ----------------------------------------
+    Record Name . . . . . : nl.cs.montana.edu
+    Record Type . . . . . : 1
+    Time To Live  . . . . : 2
+    Data Length . . . . . : 4
+    Section . . . . . . . : Answer
+    A (Host) Record . . . : 153.90.6.12
+
+
