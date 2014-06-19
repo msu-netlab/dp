@@ -1,0 +1,1615 @@
+'''
+<Module name>
+  bundle.repy
+  
+<Purpose>
+  Bundles simplify the transferring of repy programs and associated data to and
+  from vessels.  A bundle is a self-extracting repy program that contains a
+  repy program and embedded files that the contained program depends on.
+  Bundles have a .bundle.repy extension.
+  
+  Embedded files within a bundle are extracted into the local file system 
+  before the flow of execution reaches the contained program.  Bundles do not 
+  necessarily have to contain a repy program, and can be used solely to pack
+  data into a single unit.
+
+  This module provides a Python file-like interface to manipulating these 
+  bundles.  You may perform the following actions on bundles:
+  
+  - Create a new bundle
+  - Add files to/Remove files from a bundle
+  - Extract files from a bundle
+  - Show a bundle's contents
+  - Wipe a bundle's contents
+  
+  For more usage information, see the Example Usage section below, or consult
+  the online wiki page on the bundle API:
+    https://seattle.cs.washington.edu/wiki/SeattleLib/bundle.repy
+  
+  This is the basic file structure of a repy bundle:
+  
+  ----------
+    Auto-extracting Code for Bundles
+    
+    ...
+    Bundled program content, if specified on bundle creation
+    ...
+    
+    """
+    Data for first file
+    Data for second file
+    Data for third file
+    
+    ...
+    
+    Metadata
+    Metadata length
+    """
+  ----------
+  
+  The contents of the bundle are stored in the metadata section of the file.
+  Metadata that is stored is the following:
+    File location (relative to the beginning of the file)
+    File length (in chars)
+  
+  The metadata length is used to locate the metadata.  The repy file object
+  does not provide information on how large the file is.  In order to simplify
+  the loading of the file metadata, a set amount of space is reserved for this
+  metadata length value.  The location of the metadata can then be used to
+  locate the metadata relative to the pointer's location when reading the
+  metadata length.
+  
+  
+<Example usage>
+  This program is meant to be used as a module.  To use it directly from the
+  command line, see bundler.py
+
+  # Creating a bundle
+  mybundle = bundle_bundle('my.bundle', 'w')
+  mybundle.add('log1')
+  mybundle.add('log2')
+  mybundle.close()
+  
+  # Modifying the bundle
+  mybundle = bundle_bundle('my.bundle', 'a')
+  mybundle.remove('log2')
+  mybundle.add('replacement')
+  mybundle.close()
+  
+  # Reading data from the bundle
+  mybundle = bundle_bundle('my.bundle', 'r')
+  mybundle.list()
+  log1contents = mybundle.extract_to_string('log1')
+  mybundle.extract_all()
+  
+  # You can now read from log2
+  log2contents = open('log2').read()
+  ...
+  
+'''
+
+#begin include base64.repy
+"""
+<Program Name>
+  $Id: base64.repy 2527 2009-07-26 22:48:38Z cemeyer $
+
+<Started>
+  April 12, 2009
+
+<Author>
+  Michael Phan-Ba
+
+<Purpose>
+  Provides data encoding and decoding as specified in RFC 3548. This
+  module implements a subset of the Python module base64 interface.
+
+  b32encode(), b32decode(), b16encode(), b16decode(), decode(),
+  decodestring(), encode(), and encodestring() are not currently
+  implemented.
+
+<Changes>
+
+  2009-04-12  Michael Phan-Ba  <mdphanba@gmail.com>
+
+  * Initial release
+
+  2009-05-23  Michael Phan-Ba  <mdphanba@gmail.com>
+
+  * (b64encode, b64decode, standard_b64encode, standard_b64decode,
+    urlsafe_encode, urlsafe_decode): Renamed functions with base64 prefix
+
+  2009-05-24  Michael Phan-Ba  <mdphanba@gmail.com>
+
+  * Set property svn:keyword to "Id" 
+
+"""
+
+# The Base64 for use in encoding
+BASE64_ALPHABET = \
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+def base64_b64encode(s, altchars=None):
+  """
+  <Purpose>
+    Encode a string using Base64.
+
+  <Arguments>
+    s:
+      The string to encode.
+
+    altchars:
+      An optional string of at least length 2 (additional characters are
+      ignored) which specifies an alternative alphabet for the + and /
+      characters.  The default is None, for which the standard Base64
+      alphabet is used.
+
+  <Exceptions>
+    None.
+
+  <Side Effects>
+    None.
+
+  <Returns>
+    The encoded string.
+
+  """
+  # Build the local alphabet.
+  if altchars is None:
+    base64_alphabet = BASE64_ALPHABET
+  else:
+    base64_alphabet = BASE64_ALPHABET[:62] + altchars
+
+  # Change from characters to integers for binary operations.
+  bytes = []
+  for x in s:
+    bytes.append(ord(x))
+
+  # Encode the 8-bit words into 6-bit words.
+  x6bit_words = []
+  index = 0
+  while True:
+
+    # Encode the first 6 bits from three 8-bit values.
+    try:
+      x8bits = bytes[index]
+    except IndexError:
+      break
+    else:
+      x6bits = x8bits >> 2
+      leftover_bits = x8bits & 3
+      x6bit_words.append(base64_alphabet[x6bits])
+
+    # Encode the next 8 bits.
+    try:
+      x8bits = bytes[index + 1]
+    except IndexError:
+      x6bits = leftover_bits << 4
+      x6bit_words.extend([base64_alphabet[x6bits], "=="])
+      break
+    else:
+      x6bits = (leftover_bits << 4) | (x8bits >> 4)
+      leftover_bits = x8bits & 15
+      x6bit_words.append(base64_alphabet[x6bits])
+
+    # Encode the final 8 bits.
+    try:
+      x8bits = bytes[index + 2]
+    except IndexError:
+      x6bits = leftover_bits << 2
+      x6bit_words.extend([base64_alphabet[x6bits], "="])
+      break
+    else:
+      x6bits = (leftover_bits << 2) | (x8bits >> 6)
+      x6bit_words.append(base64_alphabet[x6bits])
+      x6bits = x8bits & 63
+      x6bit_words.append(base64_alphabet[x6bits])
+
+    index += 3
+
+  return "".join(x6bit_words)
+
+def base64_b64decode(s, altchars=None):
+  """
+  <Purpose>
+    Decode a Base64 encoded string.  The decoder ignores all non
+    characters not in the Base64 alphabet for compatibility with the
+    Python library.  However, this introduces a security loophole in
+    which covert or malicious data may be passed.
+
+  <Arguments>
+    s:
+      The string to decode.
+
+    altchars:
+      An optional string of at least length 2 (additional characters are
+      ignored) which specifies an alternative alphabet for the + and /
+      characters.  The default is None, for which the standard Base64
+      alphabet is used.
+
+  <Exceptions>
+    None.
+
+  <Side Effects>
+    TypeError on decoding error.
+
+  <Returns>
+    The decoded string.
+
+  """
+  # Build the local alphabet.
+  if altchars is None:
+    base64_alphabet = BASE64_ALPHABET
+  else:
+    base64_alphabet = BASE64_ALPHABET[:62] + altchars
+
+  # Generate the translation maps for decoding a Base64 string.
+  translate_chars = []
+  for x in xrange(256):
+    char = chr(x)
+    translate_chars.append(char)
+
+  # Build the strings of characters to delete.
+  delete_chars = []
+  for x in translate_chars:
+    if x not in base64_alphabet:
+      delete_chars.append(x)
+  delete_chars = "".join(delete_chars)
+
+  # Insert the 6-bit Base64 values into the translation string.
+  k = 0
+  for v in base64_alphabet:
+    translate_chars[ord(v)] = chr(k)
+    k += 1
+  translate_chars = "".join(translate_chars)
+
+  # Count the number of padding characters at the end of the string.
+  num_pad = 0
+  i = len(s) - 1
+  while i >= 0:
+    if s[i] == "=":
+      num_pad += 1
+    else:
+      break
+    i -= 1
+
+  # Translate the string into 6-bit characters and delete extraneous
+  # characters.
+  s = s.translate(translate_chars, delete_chars)
+
+  # Determine correct alignment by calculating the number of padding
+  # characters needed for compliance to the specification.
+  align = (4 - (len(s) & 3)) & 3
+  if align == 3:
+    raise TypeError("Incorrectly encoded base64 data (has 6 bits of trailing garbage)")
+  if align > num_pad:
+    # Technically, this isn't correctly padded. But it's recoverable, so let's
+    # not care.
+    pass
+
+  # Change from characters to integers for binary operations.
+  x6bit_words = []
+  for x in s:
+    x6bit_words.append(ord(x))
+  for x in xrange(align):
+    x6bit_words.append(-1)
+
+  # Decode the 6-bit words into 8-bit words.
+  bytes = []
+  index = 0
+  while True:
+
+    # Work on four 6-bit quantities at a time.  End when no more data is
+    # available.
+    try:
+      (x6bits1, x6bits2, x6bits3, x6bits4) = x6bit_words[index:index + 4]
+    except ValueError:
+      break
+
+    # Save an 8-bit quantity.
+    bytes.append((x6bits1 << 2) | (x6bits2 >> 4))
+
+    # End of valid data.
+    if x6bits3 < 0:
+      break
+
+    # Save an 8-bit quantity.
+    bytes.append(((x6bits2 & 15) << 4) | (x6bits3 >> 2))
+
+    # End of valid data.
+    if x6bits4 < 0:
+      break
+
+    # Save an 8-bit quantity.
+    bytes.append(((x6bits3 & 3) << 6) | x6bits4)
+
+    # Next four 6-bit quantities.
+    index += 4
+
+  return "".join([chr(x) for x in bytes])
+
+def base64_standard_b64encode(s):
+  """
+  <Purpose>
+    Encode a string using the standard Base64 alphabet.
+
+  <Arguments>
+    s:
+      The string to encode.
+
+  <Exceptions>
+    None.
+
+  <Side Effects>
+    None.
+
+  <Returns>
+    The encoded string.
+
+  """
+  return base64_b64encode(s)
+
+def base64_standard_b64decode(s):
+  """
+  <Purpose>
+    Decode a Base64 encoded string using the standard Base64 alphabet.
+
+  <Arguments>
+    s:
+      The string to decode.
+
+  <Exceptions>
+    None.
+
+  <Side Effects>
+    TypeError on decoding error.
+
+  <Returns>
+    The decoded string.
+
+  """
+  return base64_b64decode(s)
+
+
+def base64_urlsafe_b64encode(s):
+  """
+  <Purpose>
+    Encode a string using a URL-safe alphabet, which substitutes -
+    instead of + and _ instead of / in the standard Base64 alphabet.
+
+  <Arguments>
+    s:
+      The string to encode.
+
+  <Exceptions>
+    None.
+
+  <Side Effects>
+    None.
+
+  <Returns>
+    The encoded string.
+
+  """
+  return base64_b64encode(s, "-_")
+
+
+def base64_urlsafe_b64decode(s):
+  """
+  <Purpose>
+    Decode a Base64 encoded string using a URL-safe alphabet, which
+    substitutes - instead of + and _ instead of / in the standard Base64
+    alphabet.
+
+  <Arguments>
+    s:
+      The string to decode.
+
+  <Exceptions>
+    None.
+
+  <Side Effects>
+    TypeError on decoding error.
+
+  <Returns>
+    The decoded string.
+
+  """
+  return base64_b64decode(s, "-_")
+
+#end include base64.repy
+#begin include serialize.repy
+"""
+Author: Justin Cappos
+
+
+Start date: October 9th, 2009
+
+Purpose: A simple library that serializes and deserializes built-in repy types.
+This includes strings, integers, floats, booleans, None, complex, tuples, 
+lists, sets, frozensets, and dictionaries.
+
+There are no plans for including objects.
+
+Note: that all items are treated as separate references.   This means things
+like 'a = []; a.append(a)' will result in an infinite loop.   If you have
+'b = []; c = (b,b)' then 'c[0] is c[1]' is True.   After deserialization 
+'c[0] is c[1]' is False.
+
+I can add support or detection of this if desired.
+"""
+
+# The basic idea is simple.   Say the type (a character) followed by the 
+# type specific data.    This is adequate for simple types
+# that do not contain other types.   Types that contain other types, have
+# a length indicator and then the underlying items listed sequentially.   
+# For a dict, this is key1value1key2value2.
+
+
+
+def serialize_serializedata(data):
+  """
+   <Purpose>
+      Convert a data item of any type into a string such that we can 
+      deserialize it later.
+
+   <Arguments>
+      data: the thing to seriailize.   Can be of essentially any type except
+            objects.
+
+   <Exceptions>
+      TypeError if the type of 'data' isn't allowed
+
+   <Side Effects>
+      None.
+
+   <Returns>
+      A string suitable for deserialization.
+  """
+
+  # this is essentially one huge case statement...
+
+  # None
+  if type(data) == type(None):
+    return 'N'
+
+  # Boolean
+  elif type(data) == type(True):
+    if data == True:
+      return 'BT'
+    else:
+      return 'BF'
+
+  # Integer / Long
+  elif type(data) is int or type(data) is long:
+    datastr = str(data) 
+    return 'I'+datastr
+
+
+  # Float
+  elif type(data) is float:
+    datastr = str(data) 
+    return 'F'+datastr
+
+
+  # Complex
+  elif type(data) is complex:
+    datastr = str(data) 
+    if datastr[0] == '(' and datastr[-1] == ')':
+      datastr = datastr[1:-1]
+    return 'C'+datastr
+
+
+
+  # String
+  elif type(data) is str:
+    return 'S'+data
+
+
+  # List or tuple or set or frozenset
+  elif type(data) is list or type(data) is tuple or type(data) is set or type(data) is frozenset:
+    # the only impact is the first letter...
+    if type(data) is list:
+      mystr = 'L'
+    elif type(data) is tuple:
+      mystr = 'T'
+    elif type(data) is set:
+      mystr = 's'
+    elif type(data) is frozenset:
+      mystr = 'f'
+    else:
+      raise Exception("InternalError: not a known type after checking")
+
+    for item in data:
+      thisitem = serialize_serializedata(item)
+      # Append the length of the item, plus ':', plus the item.   1 -> '2:I1'
+      mystr = mystr + str(len(thisitem))+":"+thisitem
+
+    mystr = mystr + '0:'
+
+    return mystr
+
+
+  # dict
+  elif type(data) is dict:
+    mystr = 'D'
+
+    keysstr = serialize_serializedata(data.keys())
+    # Append the length of the list, plus ':', plus the list.  
+    mystr = mystr + str(len(keysstr))+":"+keysstr
+    
+    # just plop the values on the end.
+    valuestr = serialize_serializedata(data.values())
+    mystr = mystr + valuestr
+
+    return mystr
+
+
+  # Unknown!!!
+  else:
+    raise TypeError("Unknown type '"+str(type(data))+"' for data :"+str(data))
+
+
+
+def serialize_deserializedata(datastr):
+  """
+   <Purpose>
+      Convert a serialized data string back into its original types.
+
+   <Arguments>
+      datastr: the string to deseriailize.
+
+   <Exceptions>
+      ValueError if the string is corrupted
+      TypeError if the type of 'data' isn't allowed
+
+   <Side Effects>
+      None.
+
+   <Returns>
+      Items of the original type
+  """
+
+  if type(datastr) != str:
+    raise TypeError("Cannot deserialize non-string of type '"+str(type(datastr))+"'")
+  typeindicator = datastr[0]
+  restofstring = datastr[1:]
+
+  # this is essentially one huge case statement...
+
+  # None
+  if typeindicator == 'N':
+    if restofstring != '':
+      raise ValueError("Malformed None string '"+restofstring+"'")
+    return None
+
+  # Boolean
+  elif typeindicator == 'B':
+    if restofstring == 'T':
+      return True
+    elif restofstring == 'F':
+      return False
+    raise ValueError("Malformed Boolean string '"+restofstring+"'")
+
+  # Integer / Long
+  elif typeindicator == 'I':
+    try:
+      return int(restofstring) 
+    except ValueError:
+      raise ValueError("Malformed Integer string '"+restofstring+"'")
+
+
+  # Float
+  elif typeindicator == 'F':
+    try:
+      return float(restofstring) 
+    except ValueError:
+      raise ValueError("Malformed Float string '"+restofstring+"'")
+
+  # Float
+  elif typeindicator == 'C':
+    try:
+      return complex(restofstring) 
+    except ValueError:
+      raise ValueError("Malformed Complex string '"+restofstring+"'")
+
+
+
+  # String
+  elif typeindicator == 'S':
+    return restofstring
+
+  # List / Tuple / set / frozenset / dict
+  elif typeindicator == 'L' or typeindicator == 'T' or typeindicator == 's' or typeindicator == 'f':
+    # We'll split this and keep adding items to the list.   At the end, we'll
+    # convert it to the right type
+
+    thislist = []
+
+    data = restofstring
+    # We'll use '0:' as our 'end separator'
+    while data != '0:':
+      lengthstr, restofdata = data.split(':', 1)
+      length = int(lengthstr)
+
+      # get this item, convert to a string, append to the list.
+      thisitemdata = restofdata[:length]
+      thisitem = serialize_deserializedata(thisitemdata)
+      thislist.append(thisitem)
+
+      # Now toss away the part we parsed.
+      data = restofdata[length:]
+
+    if typeindicator == 'L':
+      return thislist
+    elif typeindicator == 'T':
+      return tuple(thislist)
+    elif typeindicator == 's':
+      return set(thislist)
+    elif typeindicator == 'f':
+      return frozenset(thislist)
+    else:
+      raise Exception("InternalError: not a known type after checking")
+
+
+  elif typeindicator == 'D':
+
+    lengthstr, restofdata = restofstring.split(':', 1)
+    length = int(lengthstr)
+
+    # get this item, convert to a string, append to the list.
+    keysdata = restofdata[:length]
+    keys = serialize_deserializedata(keysdata)
+
+    # The rest should be the values list.
+    values = serialize_deserializedata(restofdata[length:])
+
+    if type(keys) != list or type(values) != list or len(keys) != len(values):
+      raise ValueError("Malformed Dict string '"+restofstring+"'")
+    
+    thisdict = {}
+    for position in xrange(len(keys)):
+      thisdict[keys[position]] = values[position]
+    
+    return thisdict
+
+
+
+
+  # Unknown!!!
+  else:
+    raise ValueError("Unknown typeindicator '"+str(typeindicator)+"' for data :"+str(restofstring))
+
+
+
+
+#end include serialize.repy
+
+class bundle_InvalidOperationError(Exception):
+  ''' Describes an invalid operation on a bundle. '''
+
+class bundle_EncodingError(bundle_InvalidOperationError):
+  ''' An error occurred during the encoding/decoding process. '''
+
+# We use this to mark where our autoextraction script ends
+_BUNDLE_AUTOEXTRACT_END_DELIMITER = "# End of auto-extraction script\n"
+
+# We use these to mark where our section begins/ends
+_BUNDLE_DATA_BEGIN_DELIMITER = "\n# Bundled data\n'''"
+_BUNDLE_DATA_END_DELIMITER = "'''\n# End of bundled data\n"
+
+# This is to allow bundles to auto-extract themselves.
+# The include statement is 'inlined' with the previous line because
+# we want to avoid the preprocessor from processing that line prior to 
+# the user running the preprocessor to compile their program. 
+_BUNDLE_AUTOEXTRACT_HEADER = """
+# Start of auto-extraction script
+
+bundle = bundle_Bundle('%s', 'r')
+bundle.extract_all()
+
+# Don't let user accidentally access this later
+del bundle
+""" + _BUNDLE_AUTOEXTRACT_END_DELIMITER
+
+# This specifies the format that use to read the metadata pointer.
+# This gives us enough space to specify up to 10^10 bits.
+# This should be enough for most usages... 
+_BUNDLE_METADATA_WIDTH_LEN = 10
+_BUNDLE_METADATA_WIDTH_FORMAT = "%" + str(_BUNDLE_METADATA_WIDTH_LEN) + "i"
+
+class bundle_Bundle:
+  def __init__(self, fn, mode, srcfn = None):
+    """
+    <Purpose>
+      Creates an bundle object currently in, or that will be created in the 
+      current directory.
+      
+    <Arguments>
+      fn: The name of the bundle.
+      mode: The read mode to open the bundle with.
+        r - Read-only
+        w - Write (Creates a new bundle)
+        a - Append (Use this to modify)
+      
+      srcfn:  If specified, the contents of this file will be embedded into
+              the bundle.  This is only valid when creating a bundle with the
+              'w' flag.
+        
+    <Side Effects>
+      Creates a new bundle, or opens an existing bundle for reading or 
+      modification.
+      
+      If the existing file is not a bundle, opening it in write or append mode
+      will convert it into a bundle.
+    
+    <Exceptions>
+      The common exceptions associated with opening files in repy.
+      
+    <Return>
+      The bundle object associated with the provided fn and mode.
+    """
+    
+    if mode not in ('w', 'r', 'a'):
+      raise ValueError("Invalid or unsupported bundle mode ('"+mode+"')");
+    
+    if srcfn is None:
+      srcfn = fn
+      
+    if mode == 'w':
+      # Copy contents over from sourcefile if needed
+      if srcfn != fn:
+        _bundle_copy_file(srcfn, fn)
+
+    self._name = fn
+    self._mode = mode
+
+    self._open(mode)
+    
+    # Is this an existing bundle?
+    try:
+      self._fobj.seek(-len(_BUNDLE_DATA_END_DELIMITER), 2)
+      read_str = self._fobj.read(len(_BUNDLE_DATA_END_DELIMITER))
+    # We get an error if we try to seek to the left, when the file length is 
+    # less than the amount we try to seek by.
+    except IOError, e:
+      if not "Invalid argument" in str(e):
+        raise
+      read_str = ""
+    existing_bundle = read_str == _BUNDLE_DATA_END_DELIMITER
+    
+    if mode == 'w':
+      tempfilefn = 'tempdumpfile'
+      tempfile = open(tempfilefn, 'wb+')
+      
+      if not existing_bundle:
+        # Make a copy of existing file contents
+        self._fobj.seek(0, 0)
+        _bundle_copy_file_contents(self._fobj, tempfile)
+
+      else:        
+        # Find where the user's script is
+        data_position = _bundle_find_next_string_occurrence_in_file(self._fobj, _BUNDLE_AUTOEXTRACT_END_DELIMITER) + len(_BUNDLE_AUTOEXTRACT_END_DELIMITER)
+        self._fobj.seek(0, data_position)
+
+        # Find out how long the user's script is
+        bundle_data_position = _bundle_find_next_string_occurrence_in_file(self._fobj, _BUNDLE_AUTOEXTRACT_END_DELIMITER) + len(_BUNDLE_DATA_BEGIN_DELIMITER)
+        data_length = bundle_data_position - data_position
+
+        # Put the user's script into the temp file
+        _bundle_copy_file_contents(self._fobj, tempfile, data_length)
+      
+      # Embed this script in the output script
+      self._fobj.seek(0, 0)
+      bundle_class_file = open('bundle.repy', 'rb')
+
+      # We must remove all occurrences of \r so that the string search mechanism
+      # doesn't have to deal with OS newline differences.
+      # This file really shouldn't have to use \r either way.
+      chunksize = 4096
+      data = bundle_class_file.read(chunksize).replace('\r', '')
+      while data:
+        self._fobj.write(data)
+        data = bundle_class_file.read(chunksize).replace('\r', '')
+
+      # Attach autoextraction script
+      self._fobj.write(_BUNDLE_AUTOEXTRACT_HEADER % self._name)
+      
+      # Insert the user's script into the bundle
+      tempfile.seek(0, 0)
+      _bundle_copy_file_contents(tempfile, self._fobj)
+      
+      # We are done with the temp file
+      tempfile.close()
+      removefile(tempfilefn)
+      
+      # Append our data at the end of the file
+      self._fobj.seek(0, 2)
+      self._fobj.write(_BUNDLE_DATA_BEGIN_DELIMITER)
+      self._metadata_width = 0
+      self._metadata = {
+        'files': {},
+        'data_length': 0,
+      }
+      self._write_metadata()
+    else:
+      self._load_metadata()
+  
+  
+  def add_files(self, fns):
+    """
+    <Purpose>
+      Adds the specified files into the bundle.
+      
+    <Arguments>
+      fns: 
+        The list of filenames of the files that should be added to the bundle.
+        
+    <Side Effects>
+      The specified files will be locked for the duration of the write.
+      
+    <Exceptions>
+      Throws a ValueError if fns is not a list.
+      Throws an InvalidOperationError if the file already exists in the bundle.
+    
+    <Return>
+      A dictionary containing the files that failed to write, mapped to the 
+      exceptions that they raised. 
+      
+    """
+    if not isinstance(fns, list):
+      raise ValueError("fns must be a list")
+
+    for fn in fns:
+      if fn in self._metadata['files']:
+        raise bundle_InvalidOperationError("File already exists")
+
+    # Total amount of data added in this method
+    total_encoded_length = 0
+
+    # Amount of data to read at a time
+    chunksize = 4096
+
+    # The last file ends where the metadata begins
+    self._goto_bundle_position(0, -1)
+    for fn in fns:
+      # Start writing the file contents over
+      srcfile = open(fn, 'rb')
+      data = srcfile.read(chunksize)
+      
+      file_encoded_length = 0;
+      while data:
+        encoded_data = _bundle_embed_encode(data)
+        self._fobj.write(encoded_data)
+        file_encoded_length += len(encoded_data)
+
+        data = srcfile.read(chunksize)
+
+      # Update the metadata
+      self._metadata['files'][fn] = {
+        'location': self._metadata['data_length'] + total_encoded_length,
+        'length': file_encoded_length
+      }
+
+      total_encoded_length += file_encoded_length
+    
+    self._metadata['data_length'] += total_encoded_length
+    self._write_metadata()
+    
+    
+  def add_string(self, fn, data):
+    """
+    <Purpose>
+      Enters the data into the bundle.  
+      
+    <Arguments>
+      fn: The filename to add under
+      data: The string data to write.
+      
+    <Side Effects>
+      The bundle will have a new entry with the specified data.
+      
+    <Exceptions>
+      None
+      
+    <Returns>
+      None
+    """
+    data = _bundle_embed_encode(data)
+    
+    # The last file ends where the metadata begins
+    self._goto_bundle_position(0, -1)
+    self._fobj.write(data)
+    
+    # Update the metadata
+    self._metadata['files'][fn] = {
+      'location': self._metadata['data_length'],
+      'length': len(data)
+    }
+    self._metadata['data_length'] += len(data)
+    self._write_metadata()
+    
+  
+  def add(self, fn):
+    """
+    <Purpose>
+      Wrapper for add_files() that operates on 1 file.  
+      For more information, see add_files().
+      
+    <Arguments>
+      fn: The file to add.
+      
+    """
+    self.add_files([fn])
+    
+      
+  def remove(self, fn):
+    """
+    <Purpose>
+      Wrapper for remove_files() that operates on 1 file.  
+      For more information, see remove_files().
+      
+    <Arguments>
+      fn: The file to remove.
+      
+    """
+    self.remove_files([fn])
+    
+    
+  def remove_files(self, fns_to_remove):
+    """
+    <Purpose>
+      Removes the specified files from the bundle.
+      
+    <Arguments>
+      fns: 
+        The list of filenames of the files that should be removed from the 
+        bundle.
+        
+    <Side Effects>
+      Creates a temporary file to hold the bundle contents.
+      
+    <Exceptions>
+      Throws a ValueError if fns is not a list.
+      Throws an InvalidOperationError if the file does not exist in the bundle.
+    
+    <Return>
+      A dictionary containing the files that failed to be removed, mapped to 
+      the exceptions that they raised. 
+      
+    """
+    if not isinstance(fns_to_remove, list):
+      raise ValueError("fns_to_remove must be a list")
+    
+    # Do all the files exist?
+    for fn in fns_to_remove:
+      if not fn in self._metadata['files']:
+        raise bundle_InvalidOperationError("File not Found: " + fn)
+    
+    tempfn = "thetempfile"
+    tempfile = open(tempfn, 'wb+')
+    
+    # Copy over everything right before the bundle begin
+    self._fobj.seek(0, 0)
+    bundle_data_position = _bundle_find_next_string_occurrence_in_file(self._fobj, _BUNDLE_DATA_BEGIN_DELIMITER)
+    self._fobj.seek(0, 0)
+    _bundle_copy_file_contents(self._fobj, tempfile, bundle_data_position)
+    
+    # Mark the beginning of the bundled data
+    tempfile.write(_BUNDLE_DATA_BEGIN_DELIMITER)
+    
+    # Remove the metadata entries that we don't need
+    for fn in fns_to_remove:
+        del self._metadata['files'][fn]
+    
+    # Copy over the data that we need to include.
+    # Note: This does NOT produce a complete bundle.
+    location = 0
+    for fn in self._metadata['files']:
+      self._goto_bundle_position(self._metadata['files'][fn]['location'], 0)
+      _bundle_copy_file_contents(self._fobj, tempfile, self._metadata['files'][fn]['length'])
+      self._metadata['files'][fn]['location'] = location
+      location += self._metadata['files'][fn]['length']
+    self._metadata['data_length'] = location
+    
+    # We are done, now swap the file contents
+    self._fobj.close()
+    self._fobj = open(self._name, 'wb+')
+    tempfile.seek(0, 0)
+    _bundle_copy_file_contents(tempfile, self._fobj)
+
+    # Complete the bundle
+    self._write_metadata()
+    
+    # We are done with tempfile
+    tempfile.close()
+    
+    
+
+  def extract_to_string(self, fn):
+    """
+    <Purpose>
+      Extracts the specified file from the bundle.
+      
+    <Arguments>
+      fn: 
+        The filename of the file that should be extracted from the bundle.
+        
+    <Side Effects>
+      None
+      
+    <Exceptions>
+      Throws an InvalidOperationError if the file does not exist in the bundle.
+    
+    <Return>
+      The extracted data.
+      
+    """
+    if fn not in self._metadata['files']:
+      raise bundle_InvalidOperationError("File not found: " + fn)
+    
+    tempfile = open('tempfile', 'wb+')
+
+    self._goto_bundle_position(self._metadata['files'][fn]['location'], 0)
+    _bundle_embed_decode_file(self._fobj, tempfile, self._metadata['files'][fn]['length'])
+
+    tempfile.seek(0, 0)
+    retstr = tempfile.read()
+    tempfile.close()
+
+    return retstr
+    
+    
+  def extract_files(self, fns):
+    """
+    <Purpose>
+      Extracts the specified files from the bundle.
+      
+    <Arguments>
+      fns: 
+        The list of filenames of the files that should be extracted from the 
+        bundle.
+        
+    <Side Effects>
+      Any existing files that share the same names as the files being extracted
+      will be overwritten.
+      
+    <Exceptions>
+      Throws the same exceptions as those thrown by self.extract_to_string().
+    
+    <Return>
+      None
+      
+    """
+    for fn in fns:
+      output_fileobj = open(fn, 'wb')
+      self._goto_bundle_position(self._metadata['files'][fn]['location'], 0)
+      _bundle_embed_decode_file(self._fobj, output_fileobj, self._metadata['files'][fn]['length'])
+      output_fileobj.close()
+    
+    
+  def extract(self, fn):
+    """
+    <Purpose>
+      Wrapper for extract_files() that operates on 1 file.  
+      For more information, see extract_files().
+      
+    <Arguments>
+      fn: The file to extract.
+      
+    """
+    self.extract_files([fn])
+    
+    
+  def extract_all(self):
+    """
+    <Purpose>
+      Extracts all files from the bundle.
+      
+    <Arguments>
+      None
+        
+    <Side Effects>
+      Any existing files that share the same names as the files being extracted
+      will be overwritten.
+      
+    <Exceptions>
+      Throws an InvalidOperationError if the files already exists in the current
+      directory.
+    
+    <Return>
+      None
+      
+    """
+    self.extract_files(self._metadata['files'].keys())
+    
+  
+  def list(self):
+    """
+    <Purpose>
+      Provides details on the contents of the bundle.
+    
+    <Arguments>
+      None
+      
+    <Side Effects>
+      There shouldn't be any. The returned dictionary should be a deep copy.
+      
+    <Exceptions>
+      None
+      
+    <Return>
+      A dict containing the lengths of all the files stored in this bundle.
+    """
+    retdict = {}
+    for file, data in self._metadata['files'].iteritems():
+      retdict[file] = data['length']
+    return retdict
+  
+  
+  def close(self):
+    """
+    <Purpose>
+      Closes the bundle.
+      
+    <Arguments>
+      None
+      
+    <Side Effects>
+      Closes the underlying file object.
+      
+    <Exceptions>
+      None
+      
+    <Returns>
+      None
+      
+    """
+    self._fobj.close()
+  
+  
+  def _open(self, mode):
+    if mode == 'r':
+      self._fobj = open(self._name, 'rb')
+    else:
+      # We still need read access if we're writing
+      self._fobj = open(self._name, 'ab+')
+
+
+  def _write_metadata(self):
+    # Writes the metadata to the current position
+    # Also updates the current metadata position.
+    serialized_metadata = serialize_serializedata(self._metadata)
+    self._fobj.write(serialized_metadata)
+    
+    self._metadata_width = len(serialized_metadata)
+    self._fobj.write(_BUNDLE_METADATA_WIDTH_FORMAT % self._metadata_width)
+    self._fobj.write(_BUNDLE_DATA_END_DELIMITER)
+    
+    
+  def _load_metadata(self):
+    # Read the metadata pointer
+    ptr_location = _BUNDLE_METADATA_WIDTH_LEN + len(_BUNDLE_DATA_END_DELIMITER)
+    # We only have the metadata width only if we've actually loaded it before
+    # goto_bundle_position() depends on that, so we can't use that to go to the
+    # metadata  
+    self._fobj.seek(-ptr_location, 2)
+    pos = self._fobj.read(_BUNDLE_METADATA_WIDTH_LEN)
+    self._metadata_width = int(pos)
+    
+    # Read metadata
+    metadata_pos = -self._metadata_width - ptr_location
+    self._goto_bundle_position(0, -1)
+    serialized_metadata = self._fobj.read(self._metadata_width)
+    
+    self._metadata = serialize_deserializedata(serialized_metadata)
+
+
+  def _goto_bundle_position(self, offset, whence = 0):
+    """
+    <Purpose>
+      Moves the read/write pointer to the specified location within the bundle. 
+      
+    <Arguments>
+      offset: The position to move the pointer to.  This is relative to the 
+        value specified in whence.
+      whence: This controls from which point the offset is applied. 
+        0 indicates from the start of the bundle data, whereas -1 indicates 
+        from the end of the bundle data.
+        
+    <Side Effects>
+      Moves the read/write pointer of the internal file object.
+      
+    <Exceptions>
+      ValueError is thrown if whence is neither 0 or -1.
+      
+    <Returns>
+      None
+    """
+    # [begin delimiter] [file data] [metadata] [metadata pointer] [end delimiter]
+    # Seek relative to beginning
+    if whence == 0:
+      position = offset - (self._metadata['data_length'] +
+          self._metadata_width + _BUNDLE_METADATA_WIDTH_LEN +
+          len(_BUNDLE_DATA_END_DELIMITER))
+    elif whence == -1:
+      position = offset - (self._metadata_width + _BUNDLE_METADATA_WIDTH_LEN + len(_BUNDLE_DATA_END_DELIMITER))
+    else:
+      raise ValueError("Invalid value for 'whence'")
+    
+    self._fobj.seek(position, 2)
+
+
+
+
+def bundle_clear_bundle_from_file(fn):
+  """
+  <Purpose>
+    Removes all traces of a bundle.
+    
+  <Arguments>
+    fn: The filename of the file to clear.
+      
+  <Side Effects>
+    The specified files will be locked for the duration of the write.
+    All bundle contents within the file will be deleted. 
+    
+  <Exceptions>
+    InvalidOperationError: Thrown if the bundle is malformed.
+  
+  <Return>
+    None 
+    
+  """
+  # Extract user code to temporary file
+  bundlefile = open(fn, 'rb')
+  tempfn = 'tempfile'
+  tempfile = open(tempfn, 'wb+')
+  
+  # Find begin of user code
+  usercode_begin = _bundle_find_next_string_occurrence_in_file(bundlefile, _BUNDLE_AUTOEXTRACT_END_DELIMITER)
+  usercode_end = _bundle_find_next_string_occurrence_in_file(bundlefile, _BUNDLE_DATA_BEGIN_DELIMITER)
+  
+  # Make sure both strings were found
+  if (usercode_begin == -1 or
+      usercode_end == -1):
+    raise bundle_InvalidOperationError("Not a valid bundle")
+
+  # Usercode actually begins after the autoextract end delimiter
+  # We need to take into account the string's length
+  usercode_begin += len(_BUNDLE_AUTOEXTRACT_END_DELIMITER)
+
+  # Copy out user code
+  # Go to the beginning of the user code
+  bundlefile.seek(usercode_begin, 0)
+
+  # Copy until the end of the user code
+  usercode_length = usercode_end - usercode_begin
+  _bundle_copy_file_contents(bundlefile, tempfile, usercode_length)
+  
+  # Put the tempfile's contents back into the original file
+  tempfile.seek(0, 0)
+  # Reopen so that the bundle is wiped
+  bundlefile.close()
+  bundlefile = open(fn, 'wb')
+  _bundle_copy_file_contents(tempfile, bundlefile)
+  
+  # We are done!
+  bundlefile.close()
+  tempfile.close()
+  removefile(tempfn)
+
+
+
+def _bundle_embed_encode(string):
+  """
+  Encodes a string so that it can be embedded into a bundle so that it can 
+  still be run in as a repy program.  The actual encoding depends on the
+  contents of the string.  We select base64 if there are non-ASCII characters,
+  or a custom quote-escaping encoding otherwise.
+
+  The resulting string will be in the following format:
+    [encoding_type][length]:[contents]
+
+  Valid encoding types:
+    b: base64
+    q: quote-escaping
+
+  """
+  # We can use quote escaping if we only have ASCII characters
+  is_ascii = True
+  for char in string:
+    if char > '~':
+      is_ascii = False
+      break
+
+  retstr = ''
+  if is_ascii:
+    type = 'q'
+    encoded_string = _bundle_encode_quote_escape(string)
+  else:
+    type = 'b'
+    encoded_string = base64_standard_b64encode(string)
+  
+  # We need the length of the encoded string so that the decoder knows exactly
+  # how much data to read from the file
+  return type + str(len(encoded_string)) + ':' + encoded_string
+
+
+
+def _bundle_embed_decode(string):
+  """
+  Decodes a string embedded into a bundle.  The string's encoding depends on the
+  first character of the string.
+  """
+  delimiter_position = string.find(':')
+  data_length = string[1:delimiter_position]
+  encoded_data = string[delimiter_position + 1:][:int(data_length)]
+
+  # First character is the type of encoding
+  if string[0] == 'q':
+    return _bundle_decode_quote_escape(encoded_data)
+  elif string[0] == 'b':
+    return base64_standard_b64decode(encoded_data)
+  else:
+    raise bundle_EncodingError("Unknown encoding type: '" + string[0]+"'")
+
+
+
+def _bundle_embed_decode_file(inputfileobj, outputfileobj, total_encoded_length):
+  """
+  <Purpose>
+    Decodes an encoded string from the current position in the file object.
+    The decoded string is written to the specified output file object.
+
+  <Arguments>
+    inputfileobj:  The file to read from.
+    outputfileobj:  The file to write the data to.
+
+  <Side Effects>
+    The file pointer is moved to the end of the read encoded string on success.
+    On failure, the file pointer is returned to its initial position.
+
+  <Exceptions>
+    IOError:
+      Raised when the source file is opened in a mode that doesn't allow
+      reading, or if the output file is opened in a mode that doesn't allow
+      writing.
+    bundle_EncodingError:
+      The source file is in an unexpected format.
+
+  <Returns>
+    None
+  """
+  known_encodings = ['q', 'b']
+  # Used to make sure we don't overshoot the amount of data we're reading...
+  # This value must be updated after every read.
+  data_read = 0
+  
+  try:
+    while data_read < total_encoded_length:
+      # First character is the type of encoding
+      encoding_type = inputfileobj.read(1)
+      data_read += 1
+
+      # Now, read the length of the string
+      length_of_data_length_string = _bundle_find_next_string_occurrence_in_file(inputfileobj, ':')
+      if length_of_data_length_string == -1:
+        raise bundle_EncodingError("Encoded string length could not be determined")
+
+      data_length_string = inputfileobj.read(length_of_data_length_string)
+      data_read += len(data_length_string)
+      data_length = int(data_length_string)
+      
+      # Read the separator ':'
+      inputfileobj.read(1)
+      data_read += 1
+
+      # Now read the encoded data
+      encoded_data = inputfileobj.read(data_length)
+      data_read += len(encoded_data)
+
+      encoded_string = encoding_type + data_length_string + ':' + encoded_data
+
+      # Perform the decode
+      outputfileobj.write(_bundle_embed_decode(encoded_string))
+
+  except:
+    # Reset the position of the file pointer on error
+    # This is relative to the current position of the file pointer
+    inputfileobj.seek(-data_read, 1)
+    raise
+
+
+
+def _bundle_encode_quote_escape(string):
+  """
+  Encodes a string so that it can be embedded into a bundle so that it can 
+  still be run in as a repy program.  Specifically, we handle the 
+  representation of quotes in the string so that this data does not affect
+  the execution of a repy program.
+
+  The encoding rule is as follows.  All characters omitted simply 
+  pass through unmodified.
+
+  # Quotes are used often, so we shouldn't use > 1 characters to 
+  # represent it
+  ' -> <
+  " -> >
+  & -> &&
+  < -> &<
+  > -> &>
+
+  """
+  retstr = ''
+  while string:
+    if string[0] == "'":
+      retstr += '<'
+    elif string[0] == '"':
+      retstr += '>'
+    elif string[0] in ['&', '<', '>']:
+      retstr += '&'+string[0]
+    else:
+      retstr += string[0]
+    string = string[1:]
+  return retstr
+
+
+
+def _bundle_decode_quote_escape(string):
+  """
+  Decodes a string encoded using the encoding mechanism specified in 
+  _bundle_encode_ascii().
+
+  The encoding rule is as follows.  All characters omitted simply 
+  pass through unmodified.
+
+  # Quotes are used often, so we shouldn't use > 1 characters to 
+  # represent it
+  ' -> <
+  " -> >
+  & -> &&
+  < -> &<
+  > -> &>
+
+  """
+  retstr = ""
+  while string:
+    if string[0] == '<':
+      retstr += "'"
+    elif string[0] == '>':
+      retstr += '"'
+    elif string[0] == '&':
+      if len(string) == 1:
+        raise bundle_EncodingError("String cannot end with a '&'")
+      if not string[1] in ['&', '<', '>']:
+        raise bundle_EncodingError("Unexpected character '"+string[1]+"'")
+      string = string[1:]
+      retstr += string[0]
+    else:
+      retstr += string[0]
+    string = string[1:]
+
+  return retstr
+
+
+
+def _bundle_copy_file(srcfn, dstfn):
+  """
+  Safely duplicates a file.
+  """
+  srcfile = open(srcfn, 'rb')
+  dstfile = open(dstfn, 'wb')
+  _bundle_copy_file_contents(srcfile, dstfile)
+  srcfile.close()
+  dstfile.close()
+
+
+
+def _bundle_copy_file_contents(srcfile, dstfile, bytes_to_copy=None):
+  """
+  <Purpose>
+    Copies data from srcfile to dstfile.
+
+  <Arguments>
+    srcfile: 
+      The source file.  This can be either a file object or a string.
+      If this is a file object, data will be read from the current
+      file pointer.
+
+    dstfile:
+      The destination file.  This can be either a file object or a string.
+      If this is a file object, data will be written starting from the 
+      current file pointer.
+
+    bytes_to_copy:
+      The number of bytes to copy over.  If this is set to None,
+      copying will continue until the end of the source file.
+
+  <Side Effects>
+    The contents of the source file will be added to the end of the
+    destination file, either until the number of bytes specified are read,
+    or until the end of the source file if the number of bytes is not
+    specified.
+
+  <Exceptions>
+    IOError:
+      Raised when the source file is opened in a mode that doesn't allows
+      reading, or when the destination file is opened in a mode that 
+      doesn't allow writing.
+
+  <Returns>
+    None
+  """
+  # Amount of data to read at a time
+  chunksize = 4096
+
+  if bytes_to_copy is None:
+    # Copy over everything
+    data = srcfile.read(chunksize)
+    while data:
+      dstfile.write(data)
+      data = srcfile.read(chunksize)
+
+  else:
+    # Copy only a specific # of bytes
+    data = srcfile.read(min(chunksize, bytes_to_copy))
+    while data:
+      dstfile.write(data)
+      bytes_to_copy -= len(data)
+      data = srcfile.read(min(chunksize, bytes_to_copy))
+
+
+
+def _bundle_find_next_string_occurrence_in_file(fileobj, string):
+  """
+  <Purpose>
+    Finds the first occurrence of the string from the current position.
+
+  <Arguments>
+    fileobj: A file object opened in binary read mode.
+
+  <Side Effects>
+    Iterates through the file to look for the specified string.
+    It resets the file seek pointer to where it was before this 
+    method was called.
+
+  <Exceptions>
+    IOError:
+      Raised when the source file is opened in a mode that doesn't allows
+      reading.
+
+  <Returns>
+    The position of the string from the beginning of the file.
+    Returns -1 if not found.
+  """
+  # Needed so we can revert the read pointer
+  data_read = 0
+  chunksize = max(4096, len(string))
+
+  # We return -1 if we can't find the string
+  position = -1
+  
+  try:
+    data = fileobj.read(chunksize)
+    data_read += len(data)
+    while data:
+      # We need to check if the string lies inbetween two chunks
+      if string in data:
+        break
+
+      new_data = fileobj.read(chunksize)
+      data_read += len(new_data)
+      data = data[chunksize:] + new_data
+    else:
+      # We couldn't find it...
+      return position
+
+    # Calculate where it is
+    data, string, after = data.partition(string)
+    position = data_read - len(string) - len(after)
+    
+  finally:
+    # Reset the file position
+    fileobj.seek(-data_read, 1)
+
+  return position

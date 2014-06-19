@@ -1,0 +1,57 @@
+"""
+Author: Steven Portzer
+Started: June 13, 2011
+Description:
+A security layer that prevents user programs from accessing files starting with
+'private_'.
+"""
+
+# Checks to make sure the file isn't private before opening it
+def secure_open(filename, mode='r'):
+  if filename.startswith("private_"):
+    raise ValueError("User is not allowed to use file names starting with 'private_'")
+  return open(filename, mode)
+
+# Filters out private files from the returned file list
+def secure_listdir():
+  filelist = []
+  for filename in listdir():
+    if not filename.startswith("private_"):
+      filelist.append(filename)
+  return filelist
+
+# Checks to make sure the file isn't private before removing it
+def secure_removefile(filename):
+  if filename.startswith("private_"):
+    raise ValueError("User is not allowed to use file names starting with 'private_'")
+  removefile(filename)
+
+
+# Define open
+CHILD_CONTEXT_DEF["open"] =       {"type":"func",
+                                   "args":(str,(str, None)),
+                                   "return":"any",
+                                   "exceptions":"any",
+                                   "target":secure_open
+                                  }
+
+# Define listdir
+CHILD_CONTEXT_DEF["listdir"] =    {"type":"func",
+                                   "args":None,
+                                   "return":list,
+                                   "exceptions":"any",
+                                   "target":secure_listdir
+                                  }
+
+# Define removefile
+CHILD_CONTEXT_DEF["removefile"] = {"type":"func",
+                                   "args":(str,),
+                                   "return":None,
+                                   "exceptions":"any",
+                                   "target":secure_removefile
+                                  }
+
+
+# Dispatch the next module
+secure_dispatch_module()
+

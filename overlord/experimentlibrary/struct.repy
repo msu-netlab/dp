@@ -1,0 +1,666 @@
+"""
+Author: Justin Cappos
+
+
+Start date: May 26th, 2011
+
+Purpose: support packing and unpacking data in an identical way to Python's
+struct module.   We can't tell the endianness so we will need to be given
+it.
+
+See http://docs.python.org/library/struct.html for more details!
+
+"""
+
+
+def _convert_number_to_big_endian_string(numbertoconvert,numberofbytes):
+  # a helper to convert a number to bytes (big endian).   Thus:
+  # _convert_number_to_big_endian_string(1,4) -> "\x00\x00\x00\x01"
+  # _convert_number_to_big_endian_string(65535,2) -> "\xff\xff"
+
+  currentstring = ""
+  currentnumber = numbertoconvert
+
+  for num in range(numberofbytes):
+    thisbyte = currentnumber & 255
+    currentnumber = currentnumber / 256
+
+    currentstring = chr(thisbyte) + currentstring
+
+  # shouldn't be hit because the caller should check
+  assert(currentnumber == 0)
+  return currentstring
+
+
+
+
+def _convert_big_endian_string_to_number(stringtoconvert):
+  # a helper to convert a number to bytes (big endian).   The number is always
+  # unsigned Thus:
+  # _convert_big_endian_string_to_number("\x00\x00\x00\x01") -> 1
+  # _convert_big_endian_string_to_number("\xff\xff") -> 65536
+
+  currentnumber = 0
+
+  for thisbyte in stringtoconvert:
+    currentnumber = currentnumber * 256
+    currentnumber = currentnumber + ord(thisbyte)
+
+  return currentnumber
+
+
+
+
+def struct_pack(formatstring, *args):
+  """
+   <Purpose>
+      Puts data in a structure that is convenient to pass to C.
+
+   <Arguments>
+      formatstring: The format string (See the python docs).   Caveat, if 
+           integer, etc.  types are used they *must* contain an endianness 
+           character
+
+      args: argument tuple for the formatstring
+
+
+   <Exceptions>
+      ValueError if the wrong number of arguments are passed
+
+      TypeError, ValueError, or IndexError if the format string is malformed
+
+   <Side Effects>
+      None.
+
+   <Returns>
+      The string containing the packed data
+  """
+
+  if type(formatstring) != str:
+    raise TypeError("Format string must have type str, not '"+str(type(formatstring))+"'")
+
+  # okay, let's iterate through these and remove stuff as we go!
+  currentformatstring = formatstring
+
+  arglist = list(args)
+
+  # this will be built as we go
+  retstring = ""
+  while currentformatstring and arglist:
+
+    #### Get the endianness! ###
+
+    endianness = "none"
+    
+    # Let's figure out the endianness
+    if currentformatstring[0] == '>' or currentformatstring[0] == '!':
+      endianness = "big"
+      currentformatstring = currentformatstring[1:]
+
+    elif currentformatstring[0] == '<':
+      endianness = "little"
+      currentformatstring = currentformatstring[1:]
+
+
+    #### Get the repeatcount! ###
+
+    # now let's see if there is a repeatcount
+    repeatcount = 1
+    repeatcountstring = ""
+    while currentformatstring[0] in '1234567890':
+      repeatcountstring += currentformatstring[0]
+      currentformatstring = currentformatstring[1:]
+    
+    # there is!   Let's set it...
+    if repeatcountstring:
+      repeatcount = int(repeatcountstring)
+    
+
+
+    #### Handle the type! ###
+
+    # figure out the type of this...
+    typetopack = currentformatstring[0]
+    currentformatstring = currentformatstring[1:]
+
+    # need to special case empty string...
+    if repeatcount == 0 and typetopack == 's' and arglist[0] == '':
+      arglist.pop(0)
+      continue
+
+    # let's go through this for each thing to pack and add it!
+    for thisitem in range(repeatcount):
+
+      # get this arg...
+      thisarg = arglist.pop(0)
+
+      # it's a string!   Must not have endianness!!!
+      if typetopack == 's':
+        if endianness != "none":
+          raise TypeError("String must not have endianness")
+
+        if type(thisarg) != str:
+          raise TypeError("String format argument not a string")
+
+        if len(thisarg) != repeatcount:
+          raise TypeError("String format argument does not match length of argument "+str(len(thisarg))+" != "+str(repeatcount))
+      
+        retstring += thisarg
+        # add the string all at once...
+        break
+
+
+
+      # it's a signed or unsigned char (1 byte)!   Must have endianness!!!
+      elif typetopack == 'b' or typetopack == 'B':
+        if endianness == "none":
+          raise TypeError("byte must have endianness")
+
+        if type(thisarg) != int and type(thisarg) != long:
+          raise TypeError("1-byte int format argument not a long or int")
+  
+        # let's check the ranges
+        if typetopack == 'b':
+          if not (thisarg >= -(2**7) and thisarg < 2**7):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'b'")
+        else:
+          if not (thisarg >= 0 and thisarg < 2**8):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'B'")
+
+        if typetopack == 'b' and thisarg < 0:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Add BYTE_MAX + 1!
+          thisarg = thisarg + 2**8
+
+        # okay, so now we have the big-endian description...
+        thisargstring = _convert_number_to_big_endian_string(thisarg,1)
+ 
+        # if it's little-endian, let's reverse it!
+        if endianness == "little":
+          thisargstring = thisargstring[::-1]
+          
+        # and append it.
+        retstring += thisargstring
+
+
+
+
+
+      # it's a signed or unsigned integer (2 byte)!   Must have endianness!!!
+      elif typetopack == 'h' or typetopack == 'H':
+        if endianness == "none":
+          raise TypeError("short must have endianness")
+
+        if type(thisarg) != int and type(thisarg) != long:
+          raise TypeError("2-byte int format argument not a long or int")
+  
+        # let's check the ranges
+        if typetopack == 'h':
+          if not (thisarg >= -(2**15) and thisarg < 2**15):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'h'")
+        else:
+          if not (thisarg >= 0 and thisarg < 2**16):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'H'")
+
+        if typetopack == 'h' and thisarg < 0:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Add SHORT_MAX + 1!
+          thisarg = thisarg + 2**16
+
+        # okay, so now we have the big-endian description...
+        thisargstring = _convert_number_to_big_endian_string(thisarg,2)
+ 
+        # if it's little-endian, let's reverse it!
+        if endianness == "little":
+          thisargstring = thisargstring[::-1]
+          
+        # and append it.
+        retstring += thisargstring
+
+
+
+      # it's a signed or unsigned integer (4 byte)!   Must have endianness!!!
+      elif typetopack == 'i' or typetopack == 'I':
+        if endianness == "none":
+          raise TypeError("Integer must have endianness")
+
+        if type(thisarg) != int and type(thisarg) != long:
+          raise TypeError("4-byte int format argument not a long or int")
+  
+        # let's check the ranges
+        if typetopack == 'i':
+          if not (thisarg >= -(2**31) and thisarg < 2**31):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'i'")
+        else:
+          if not (thisarg >= 0 and thisarg < 2**32):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'I'")
+
+        if typetopack == 'i' and thisarg < 0:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Add UINT_MAX + 1!
+          thisarg = thisarg + 2**32 
+
+        # okay, so now we have the big-endian description...
+        thisargstring = _convert_number_to_big_endian_string(thisarg,4)
+ 
+        # if it's little-endian, let's reverse it!
+        if endianness == "little":
+          thisargstring = thisargstring[::-1]
+          
+        # and append it.
+        retstring += thisargstring
+        
+
+
+
+      # it's a signed or unsigned integer (8 byte)!   Must have endianness!!!
+      elif typetopack == 'q' or typetopack == 'Q':
+        if endianness == "none":
+          raise TypeError("Long long must have endianness")
+
+        if type(thisarg) != int and type(thisarg) != long:
+          raise TypeError("8-byte int format argument not a long or int")
+  
+        # let's check the ranges
+        if typetopack == 'q':
+          if not (thisarg >= -(2**63) and thisarg < 2**63):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'q'")
+        else:
+          if not (thisarg >= 0 and thisarg < 2**64):
+            raise ValueError("Integer "+str(thisarg)+" out of range for type 'Q'")
+
+        if typetopack == 'q' and thisarg < 0:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Add ULONGLONG_MAX + 1!
+          thisarg = thisarg + 2**64
+
+        # okay, so now we have the big-endian description...
+        thisargstring = _convert_number_to_big_endian_string(thisarg,8)
+ 
+        # if it's little-endian, let's reverse it!
+        if endianness == "little":
+          thisargstring = thisargstring[::-1]
+          
+        # and append it.
+        retstring += thisargstring
+
+
+      else:
+        raise TypeError("Unknown format type '"+typetopack+"'")
+    
+
+  #### Return the result! ###
+
+
+  # all done, did everything get consumed?
+  if currentformatstring:
+    raise ValueError("Not enough arguments for formatstring in struct.pack")
+
+  if arglist:
+    raise ValueError("Too many arguments for formatstring in struct.pack")
+
+  # yes?   okay, let's return!
+  return retstring
+
+
+
+
+# this is very similar to the previous only we return a list instead of a
+# string.   Most of the parsing code is copy-pasted over since it is just
+# walking through the format string...
+
+
+def struct_unpack(formatstring, packedstring):
+  """
+   <Purpose>
+      Puts data in a structure that is convenient to pass to C.
+
+   <Arguments>
+      formatstring: The format string (See the python docs).   Caveat, if 
+           integer, etc.  types are used they *must* contain an endianness 
+           character
+
+      packedstring: the string of packed data...
+
+
+   <Exceptions>
+      ValueError, IndexError, TypeError, etc. if the args are malformed
+
+   <Side Effects>
+      None.
+
+   <Returns>
+      The list containing the unpacked data
+  """
+
+  if type(formatstring) != str:
+    raise TypeError("Format string must have type str, not '"+str(type(formatstring))+"'")
+
+  if type(packedstring) != str:
+    raise TypeError("Packed string must have type str, not '"+str(type(packedstring))+"'")
+
+
+  # let's check the size and see if this matches.   We also check the format
+  # and endianness at the same time.
+  expectedpackedstringlength = struct_calcsize(formatstring)
+
+  if expectedpackedstringlength != len(packedstring):
+    raise ValueError("Expected packed string of length "+str(expectedpackedstringlength)+", got "+str(len(packedstring)))
+
+  # okay, let's iterate through these and remove stuff as we go!
+  currentformatstring = formatstring
+  currentpackedstring = packedstring
+
+  # this will be built as we go
+  retlist = []
+
+  while currentformatstring and currentpackedstring:
+
+    #### Get the endianness! ###
+
+    endianness = "none"
+    
+    # Let's figure out the endianness
+    if currentformatstring[0] == '>' or currentformatstring[0] == '!':
+      endianness = "big"
+      currentformatstring = currentformatstring[1:]
+
+    elif currentformatstring[0] == '<':
+      endianness = "little"
+      currentformatstring = currentformatstring[1:]
+
+
+    #### Get the repeatcount! ###
+
+    # now let's see if there is a repeatcount
+    repeatcount = 1
+    repeatcountstring = ""
+    while currentformatstring[0] in '1234567890':
+      repeatcountstring += currentformatstring[0]
+      currentformatstring = currentformatstring[1:]
+    
+    # there is!   Let's set it...
+    if repeatcountstring:
+      repeatcount = int(repeatcountstring)
+    
+
+
+    #### Handle the type! ###
+
+    # figure out the type of this...
+    typetounpack = currentformatstring[0]
+    currentformatstring = currentformatstring[1:]
+
+    # I need to special case a length 0 string...
+    if repeatcount == 0 and typetounpack == 's':
+      retlist.append('')
+
+    # let's go through this for each thing to unpack
+    for thisitem in range(repeatcount):
+
+      # it's a string!   Must not have endianness!!!
+      if typetounpack == 's':
+        # shouldn't happen because we checked above
+        assert(endianness == "none")
+        assert(len(currentpackedstring) >= repeatcount)
+
+        # strings should be reconstructed as a string, not a list of bytes...
+        retlist.append(currentpackedstring[:repeatcount])
+        currentpackedstring = currentpackedstring[repeatcount+1:]
+     
+        # ... so exit!
+        break
+
+
+
+      # it's a signed or unsigned byte / char (1 byte)!  Must have endianness!!!
+      elif typetounpack == 'b' or typetounpack == 'B':
+        # shouldn't happen because we checked above
+        assert(endianness != "none")
+        assert(len(currentpackedstring) >= 1)
+  
+        # flip the endianness to big (if applicable)
+        thisnumberstring = currentpackedstring[:1]
+        if endianness == "little":
+          thisnumberstring = thisnumberstring[::-1]
+
+        currentpackedstring = currentpackedstring[1:]
+
+        # okay, so now we have the big-endian description...
+        thisnumber = _convert_big_endian_string_to_number(thisnumberstring)
+ 
+
+        if typetounpack == 'b' and thisnumber >= 2**7:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Subtract USHORT_MAX - 1!
+          thisnumber = thisnumber - 2**8
+
+        # and append it.
+        retlist.append(thisnumber)
+        
+
+
+      # it's a signed or unsigned short (2 byte)!   Must have endianness!!!
+      elif typetounpack == 'h' or typetounpack == 'H':
+        # shouldn't happen because we checked above
+        assert(endianness != "none")
+        assert(len(currentpackedstring) >= 2)
+  
+        # flip the endianness to big (if applicable)
+        thisnumberstring = currentpackedstring[:2]
+        if endianness == "little":
+          thisnumberstring = thisnumberstring[::-1]
+
+        currentpackedstring = currentpackedstring[2:]
+
+        # okay, so now we have the big-endian description...
+        thisnumber = _convert_big_endian_string_to_number(thisnumberstring)
+ 
+
+        if typetounpack == 'h' and thisnumber >= 2**15:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Subtract USHORT_MAX - 1!
+          thisnumber = thisnumber - 2**16
+
+        # and append it.
+        retlist.append(thisnumber)
+        
+
+
+      # it's a signed or unsigned integer (4 byte)!   Must have endianness!!!
+      elif typetounpack == 'i' or typetounpack == 'I':
+        # shouldn't happen because we checked above
+        assert(endianness != "none")
+        assert(len(currentpackedstring) >= 4)
+  
+        # flip the endianness to big (if applicable)
+        thisnumberstring = currentpackedstring[:4]
+        if endianness == "little":
+          thisnumberstring = thisnumberstring[::-1]
+
+        currentpackedstring = currentpackedstring[4:]
+
+        # okay, so now we have the big-endian description...
+        thisnumber = _convert_big_endian_string_to_number(thisnumberstring)
+ 
+
+        if typetounpack == 'i' and thisnumber >= 2**31:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Subtract UINT_MAX - 1!
+          thisnumber = thisnumber - 2**32 
+
+        # and append it.
+        retlist.append(thisnumber)
+        
+
+      # it's a signed or unsigned integer (8 byte)!   Must have endianness!!!
+      elif typetounpack == 'q' or typetounpack == 'Q':
+        # shouldn't happen because we checked above
+        assert(endianness != "none")
+        assert(len(currentpackedstring) >= 8)
+  
+        # flip the endianness to big (if applicable)
+        thisnumberstring = currentpackedstring[:8]
+        if endianness == "little":
+          thisnumberstring = thisnumberstring[::-1]
+
+        currentpackedstring = currentpackedstring[8:]
+
+        # okay, so now we have the big-endian description...
+        thisnumber = _convert_big_endian_string_to_number(thisnumberstring)
+ 
+
+        if typetounpack == 'q' and thisnumber >= 2**63:
+          # if signed let's do a conversion to an unsigned!
+          # Magic code!   Subtract ULONGLONG_MAX - 1!
+          thisnumber = thisnumber - 2**64
+
+        # and append it.
+        retlist.append(thisnumber)
+        
+
+      else:
+        raise TypeError("Unknown format type '"+typetounpack+"'")
+    
+
+  #### Return the result! ###
+
+  # need to handle trailing empty strings...
+  while currentformatstring.startswith('0s'):
+    retlist.append('')
+    currentformatstring = currentformatstring[2:]
+
+  # all done, did everything get consumed?
+  if currentformatstring:
+    raise ValueError("Not enough arguments for formatstring in struct.unpack")
+
+  if currentpackedstring:
+    raise ValueError("Too many arguments for formatstring in struct.unpack")
+
+  # yes?   okay, let's return!
+  return retlist
+
+
+
+
+def struct_calcsize(formatstring):
+  """
+   <Purpose>
+      Given a formatstring, indicates the correct packed string size.   
+
+   <Arguments>
+      formatstring: The format string (See the python docs).   Caveat, if 
+           integer, etc.  types are used they *must* contain an endianness 
+           character
+
+   <Exceptions>
+      ValueError, IndexError, TypeError, etc. if the args are malformed
+
+   <Side Effects>
+      None.
+
+   <Returns>
+      A numeric length (>=0)
+  """
+
+  if type(formatstring) != str:
+    raise TypeError("Format string must have type str, not '"+str(type(formatstring))+"'")
+
+  
+  currentlength = 0
+
+  # this will hold the position inside of the formatstring.   It's what we 
+  # move along to make progress.
+  position = 0
+
+  # we'll move the position in the formatstring as we go...
+  while position < len(formatstring):
+
+    #### Do our limited endianness checking... ###
+
+    specifiesendianness = False
+    # We'll ignore endianness characters other than to check for existance
+    if formatstring[position] in ['>','!','<']:
+      position = position + 1
+      specifiesendianness = True
+    #### Get the repeatcount! ###
+
+    # now let's see if there is a repeatcount
+    repeatcount = 1
+    repeatcountstring = ""
+    while formatstring[position] in '1234567890':
+      repeatcountstring += formatstring[position]
+      position = position + 1
+    
+    # there is!   Let's set it...
+    if repeatcountstring:
+      repeatcount = int(repeatcountstring)
+    
+
+
+    #### Handle the type! ###
+
+    # figure out the type of this...
+    typetounpack = formatstring[position]
+    position = position + 1
+
+    # it's a string!   Must not have endianness!!!
+    if typetounpack == 's':
+
+      if specifiesendianness:
+        raise ValueError("A string cannot have endianness specified! (position "+str(position)+" of '"+formatstring+"')")
+      
+      # add the size of a char + the number of chars
+      currentlength += 1 * repeatcount
+      #account for null terminator
+      currentlength += 1
+
+
+
+    # it's a signed or unsigned char / byte!   Must have endianness!!!
+    elif typetounpack == 'b' or typetounpack == 'B':
+
+      if not specifiesendianness:
+        raise ValueError("A byte must have endianness specified! (position "+str(position)+" of '"+formatstring+"')")
+
+      # add the size of a byte + the number of bytes
+      currentlength += 1 * repeatcount
+
+
+
+    # it's a signed or unsigned integer (2 byte)!   Must have endianness!!!
+    elif typetounpack == 'h' or typetounpack == 'H':
+
+      if not specifiesendianness:
+        raise ValueError("A short must have endianness specified! (position "+str(position)+" of '"+formatstring+"')")
+
+      # add the size of a short + the number of shorts
+      currentlength += 2 * repeatcount
+
+
+    # it's a signed or unsigned integer (4 byte)!   Must have endianness!!!
+    elif typetounpack == 'i' or typetounpack == 'I':
+
+      if not specifiesendianness:
+        raise ValueError("An integer must have endianness specified! (position "+str(position)+" of '"+formatstring+"')")
+
+
+      # add the size of an integer + the number of integers
+      currentlength += 4 * repeatcount
+
+    # it's a signed or unsigned long long (8 byte)!   Must have endianness!!!
+    elif typetounpack == 'q' or typetounpack == 'Q':
+
+      if not specifiesendianness:
+        raise ValueError("An integer must have endianness specified! (position "+str(position)+" of '"+formatstring+"')")
+
+
+      # add the size of an integer + the number of integers
+      currentlength += 8 * repeatcount
+
+
+    else:
+      raise TypeError("Unknown format type '"+typetounpack+"' at (position "+str(position)+" of '"+formatstring+"')")
+  return currentlength
+
+
