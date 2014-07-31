@@ -1,7 +1,7 @@
 var fs = require('fs');
 var http = require('http');
 
-var domain = "fbcdn-profile-a.akamaihd.net";
+var domain = "lh3.googleusercontent.com";
 var dir = "records/";
 fs.readdir(dir, function (err, files) {
 	if (err) {
@@ -19,8 +19,8 @@ fs.readdir(dir, function (err, files) {
 					var dns_type;
 					map_object_name_list = Object.keys(json_data.dump.map);
 					for (var i = 0; i < map_object_name_list.length; i++) {
-						if (map_object_name_list[i].substr(0, 28) === domain) {
-							if (map_object_name_list[i].length == 29) {
+						if (map_object_name_list[i].substr(0, 25) === domain) {
+							if (map_object_name_list[i].length == 26) {
 								dns_type = "local";
 							}
 							else {

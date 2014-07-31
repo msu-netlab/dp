@@ -40,10 +40,10 @@ fs.readdir(dir, function (err, files) {
 											is_blackhole = "0";
 										var options = {
 											host: 'www.cs.montana.edu',
-											path: '/~utkarsh.goel/scripts/dns/dasu_blackhole.php?client_ip=' + client_ip + '&cdn_ip=' + http_object[http_object_loop].ip + '&is_blackhole=' + is_blackhole + '&timestamp=' + http_object[http_object_loop].creationGMTTime
+											path: '/~utkarsh.goel/scripts/dns/dasu_blackhole.php?client_ip=' + client_ip + '&cdn_ip=' + http_object[http_object_loop].ip + '&is_blackhole=' + is_blackhole + '&timestamp=' + http_object[http_object_loop].creationGMTTime + "&dns_ip=" + dns_ip + "&domain=" + domain + "&dns_type=" + dns_type
 										};
 										http.request(options).end();
-										console.log(options);
+										//console.log(options);
 									}	
 								}
 							}
