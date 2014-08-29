@@ -8,5 +8,5 @@ max_min_val = ecdf(max_min)
 plot(mean_min_val, lty=1, col="grey", xlab="Connection Setup Time (ms)", ylab="CDF", main="Connection Setup with IPs returned by Local DNS", xlim=c(0, 1000), pch=16)
 lines(max_min_val, pch=17)
 
-legend("bottomright",  pch = c(16, 17), legend=c("Mean time - Min time", "Max time - Min time"), col=c("grey", "black"))
+legend("bottomright",  pch = c(16, 17), legend=c("Mean time - Min. time", "Max time - Min. time"), col=c("grey", "black"))
 

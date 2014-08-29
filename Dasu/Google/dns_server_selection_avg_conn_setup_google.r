@@ -12,5 +12,5 @@ plot(ldns_google_val, lty=1, col="grey", pch = 16, xlab="Time (ms)", ylab="CDF",
 lines(ldns_03_val, pch = 17, col = "black")
 lines(ldns_222_val, pch = 18, col = "red")
 
-legend("bottomright",  pch = c(16, 17, 18), legend=c("LDNS - 8.8.8.8", "LDNS - 0.3", "LDNS - .222"), col=c("grey", "black", "red"))
+legend("bottomright",  pch = c(16, 17, 18), legend=c("LDNS - Google's DNS", "LDNS - Open DNS 1", "LDNS - Open DNS 2"), col=c("grey", "black", "red"))
 

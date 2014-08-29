@@ -5,7 +5,7 @@ max_min <- c(36.00, 704.00, 183.00, 75.00, 60.00, 16.00, 25.00, 341.00, 396.00, 
 mean_min_val = ecdf(mean_min)
 max_min_val = ecdf(max_min)
 
-plot(mean_min_val, lty=1, col="grey", pch = 16, xlab="First Bit Time (ms)", ylab="CDF", main="First Bit Time with IPs returned by Local DNS", xlim=c(0, 1000))
+plot(mean_min_val, lty=1, col="grey", pch = 16, xlab="HTTP HEAD Time (ms)", ylab="CDF", main="First Bit Time with IPs returned by Local DNS", xlim=c(0, 1000))
 lines(max_min_val, pch = 17)
 
-legend("bottomright",  pch = c(16, 17), legend=c("Mean time - Min time", "Max time - Min time"), col=c("grey", "black"))
+legend("bottomright",  pch = c(16, 17), legend=c("Mean time - Min. time", "Max time - Min. time"), col=c("grey", "black"))

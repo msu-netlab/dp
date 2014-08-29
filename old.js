@@ -1,5 +1,5 @@
 var dgram = require("dgram");
-var net =  require("net");
+var http =  require("http");
 var dnsIpList = ["8.8.8.8", "208.67.222.222", "209.244.0.3"];
 var server = dgram.createSocket("udp4");
 server.bind(53);
@@ -38,7 +38,7 @@ server.on("message", function (msg, rinfo) {
 						console.log("Error in forwarding DNS request to " + dnsIp);
 					}
 					else if(bytes) {
-						console.log("DNS request forwarded to" + dnsIp);
+						//console.log("DNS request forwarded to" + dnsIp);
 					}
 				});
 			});
@@ -116,7 +116,7 @@ server.on("message", function (msg, rinfo) {
 				}
 				else if (bytes) {
 					isDnsResponseSentToClient = true;
-					console.log("response sent to client");
+					//console.log("response sent to client");
 				}			
 			});
 		}
@@ -152,15 +152,22 @@ server.on("message", function (msg, rinfo) {
 			if(ipList.length > 0){
 				var currentIp = ipList[0];
 				var responseFronIp = "";
-				var options = {host: currentIp, port: 80};
-				var initialTimestamp = new Date().getTime();
-				var open = net.connect(options, function() {
-					var timeToTCPOpen = (new Date().getTime() - initialTimestamp);
-					avg += timeToTCPOpen;
+				var options = {method: 'HEAD', host: currentIp, port: 80, path: '/', Connection: 'close'};
+				var initialTimestamp = 0;
+				var req = http.request(options, function(res) {
+					req.destroy();
+					res.on('error', function(err) {
+						console.log("response error" + err);
+					});
+				
+					responseFronIp = res.headers;
+					var timeToHead = (new Date().getTime() - initialTimestamp);
+					avg += timeToHead;
 					if(count === 3 && typeof currentIp !== "undefined"){
 						count = 1;
 						countAvg++;
 						avg = avg/countAvg;		
+						console.log("Average for " + currentIp + ": " + avg);
 						if(avg < min){
 							min = avg;
 							minIp = currentIp;
@@ -182,11 +189,12 @@ server.on("message", function (msg, rinfo) {
 						countAvg = countAvg + 1;
 						evaluateIpAddress(ipList);	
 					}
-					open.end();
 				});
 
-				open.on('error', function(e) {
-					console.log("Got error for " + currentIp + ": " + e.stack + "---" + initialTimestamp + "----" + new Date().getTime() + "---" + e.code);
+				req.on('error', function(e) {
+					req.destroy();
+					console.log(initialTimestamp + "----" + new Date().getTime());
+					console.log("Got error for " + currentIp + ": " + e.stack);
 					console.log(responseFronIp);
 					if(count === 3 && typeof currentIp !== "undefined"){
 						count = 1;
@@ -214,8 +222,12 @@ server.on("message", function (msg, rinfo) {
 						evaluateIpAddress(ipList);
 					}
 				});
-			
-				open.end();
+				
+				req.on('finish', function() {
+					initialTimestamp = new Date().getTime();
+				});
+				
+				req.end();
 		   }
 		   
 		}
