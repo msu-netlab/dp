@@ -1,24 +1,34 @@
 var dgram = require("dgram");
 var net =  require("net");
 var raw = require ("raw-socket");
+var sizeof = require('object-sizeof');
 
-var dnsIpList = ["8.8.8.8", "208.67.222.222", "209.244.0.3"];
 var server = dgram.createSocket("udp4");
 server.bind(53);
-var domainToIpArray = {};
-var IpPerformanceArray = {};
-var primaryPort = 80;
-var secondaryPort = 443;
-var selfIp = require('ip').address();
-var portArrayInHex = ['0050', '01bb'];
-console.log("Server started on " + selfIp);
-
 server.on("error", function (err) {
-	console.log("server error:\n" + err.stack);
 	server.close();
 });
 
+var dnsIpList = ["8.8.8.8", "208.67.222.222", "209.244.0.3"];
+var domainToIpArray = {};
+var selfIp = require('ip').address();
+var portArrayInHex = ['0050', '01bb'];
+var cacheLimitInBytes = 10000000;
+var dnsResponseDelayInMilliseconds = 40;
+var defaultDnsResponseTtleInSeconds = '300';
+var dnsTrafficInBytes = 0;
+var tcpSynTrafficInBytes = 0;
+
+Object.size = function(obj) { 
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
 server.on("message", function (msg, rinfo) {
+	console.log("Total Traffic: " + ((dnsTrafficInBytes + tcpSynTrafficInBytes)/1000) + " KB------Current Cache Size: " + (sizeof(domainToIpArray)/1000.0) + " KB------Number of Domains Cached: " + Object.size(domainToIpArray));
 	var clientReq = msg.toString('hex', 0, msg.length);
 	if(clientReq.substr(clientReq.length - 8, 4) == "0001") {
 		var min = Number.MAX_VALUE, minIp = "";
@@ -33,18 +43,15 @@ server.on("message", function (msg, rinfo) {
 			var message = new Buffer(msg);
 			var client = dgram.createSocket("udp4");
 
-			client.on('error', function(err) {
-				console.log("UDP Bind Error: " + err);
-			});
+			client.on('error', function(err) {});
 			
 			client.bind();
 			
 			dnsIpList.forEach(function(dnsIp) {
 				client.send(message, 0, message.length, 53, dnsIp, function(err, bytes) {
-					if (err) {
-						console.log("Error in forwarding DNS request to " + dnsIp);
-					}
+					if (err) {}
 					else if(bytes) {
+						dnsTrafficInBytes = dnsTrafficInBytes + message.length + 28;
 					}
 				});
 			});
@@ -54,32 +61,50 @@ server.on("message", function (msg, rinfo) {
 			}, 2000);
 			
 			client.on("message", function (msg, rinfo) {
+				dnsTrafficInBytes = dnsTrafficInBytes + msg.length + 28;
 				var freshDomainIp = parseIpFromDnsResponse(msg);		
 				if(!isDnsResponseSentToClient && freshDomainIp != 0) {
 					var freshDomainTtl = "00000004";
 					var dnsPacketInHexWithoutTransactionId = "818000010001" + clientReq.substr(16) + "c00c00010001" + freshDomainTtl + "0004" +freshDomainIp;
 					var dnsResponseToSend = dnsResponseToSendTransactionId + dnsPacketInHexWithoutTransactionId;
-					domainToIpArray[domainNameInHex] = {'ip': freshDomainIp, 'ttl': freshDomainTtl, 'dnsPacketInHexWithoutTransactionId' : dnsPacketInHexWithoutTransactionId};
+					if (sizeof(domainToIpArray) + 500 <= cacheLimitInBytes) {
+						domainToIpArray[domainNameInHex] = {'ttl' : defaultDnsResponseTtleInSeconds, 'dnsPacketInHexWithoutTransactionId' : dnsPacketInHexWithoutTransactionId, 'lastUsed': new Date().getTime()};
+					}
+					else {
+						removeLeastRecentlyUsedDomainFromCache();
+						domainToIpArray[domainNameInHex] = {'ttl' : defaultDnsResponseTtleInSeconds, 'dnsPacketInHexWithoutTransactionId' : dnsPacketInHexWithoutTransactionId, 'lastUsed': new Date().getTime()};
+					}
 					setTimeout(function() {
-						sendDnsResponse((dnsResponseToSendTransactionId + domainToIpArray[domainNameInHex]['dnsPacketInHexWithoutTransactionId']), clientIp, clientPort, "first DNS response");
-					}, 100);
-					
+						sendDnsResponse((dnsResponseToSendTransactionId + domainToIpArray[domainNameInHex]['dnsPacketInHexWithoutTransactionId']), clientIp, clientPort, "cold cache");
+					}, dnsResponseDelayInMilliseconds);
 				}
 				else if (!isDnsResponseSentToClient && freshDomainIp == 0) {
 					sendDnsResponse(msg.toString('hex', 0, msg.length), clientIp, clientPort, "original DNS server");
 				}
-				if(freshDomainIp != 0) {
+				if (freshDomainIp != 0) {
 					processDnsResponse(msg);
-					//evaluateIpAddressList(processDnsResponse(msg));
 				}
 			});
 		
 		}
 		else {
 			var dnsResponseFromCache = dnsResponseToSendTransactionId + domainToIpArray[domainNameInHex]['dnsPacketInHexWithoutTransactionId'];
-			sendDnsResponse(dnsResponseFromCache, clientIp, clientPort, "cache");
+			sendDnsResponse(dnsResponseFromCache, clientIp, clientPort, "warm cache");
+			domainToIpArray[domainNameInHex]['lastUsed'] = new Date().getTime();
 		}
 		
+		function removeLeastRecentlyUsedDomainFromCache () {
+			var domainNameList = Object.getOwnPropertyNames(domainToIpArray);
+			var leastUsedDomainTimestamp = parseInt(domainToIpArray[domainNameList[0]]['lastUsed']);
+			var leastUsedDomainIndex = 0;
+			for ( var i = 0; i < domainNameList.length; i++) {
+				if (parseInt(domainToIpArray[domainNameList[i]]['lastUsed']) < leastUsedDomainTimestamp) {
+					leastUsedDomainTimestamp = parseInt(domainToIpArray[domainNameList[i]]['lastUsed']);
+					leastUsedDomainIndex = i;
+				}
+			}
+			delete domainToIpArray[domainNameList[leastUsedDomainIndex]];
+		}
 		
 		function parseIpFromDnsResponse(msg) {
 			var resInString = msg.toString('hex', 0 , msg.length);
@@ -110,25 +135,25 @@ server.on("message", function (msg, rinfo) {
 			}
 			else {
 				return 0;
-			}
-			 
+			}	 
 		}
 
 		function sendDnsResponse(msg, ip, port, responseType) {
 			try { 
 				var message = new Buffer(msg, 'hex');
 				server.send(message, 0, message.length, port, ip, function(err, bytes) {
-					if (err) {
-						console.log("Error sending DNS response to client");
-					}
+					if (err) {}
 					else if (bytes) {
+						if (responseType === "cold cache" && isDnsResponseSentToClient === false) {
+							setTimeout(function() {
+								delete domainToIpArray[domainNameInHex];
+							}, parseInt(domainToIpArray[domainNameInHex]['ttl']) * 1000 * 8);
+						}
 						isDnsResponseSentToClient = true;
 					}			
 				});
-				}
-			catch (exception) {
-				console.log("Malformed DNS response.");
 			}
+			catch (exception) {}
 		}
 		
 		function processDnsResponse(msg) {
@@ -150,26 +175,16 @@ server.on("message", function (msg, rinfo) {
 					var answer = resAfterQuery.substr(initialStart, answerLength);
 					if(dataLength == 4) {
 						var ip = answer.substr(answer.length - 8);
-						var ipTtl = answer.substr(12, 8);
-						
-						evaluateIpAddress(parseInt(ip.substr(0, 2), 16) + "." + parseInt(ip.substr(2, 2), 16) + "." + parseInt(ip.substr(4, 2), 16) + "." + parseInt(ip.substr(6, 2), 16));
-						//perDnsResponseIpArray.push(parseInt(ip.substr(0, 2), 16) + "." + parseInt(ip.substr(2, 2), 16) + "." + parseInt(ip.substr(4, 2), 16) + "." + parseInt(ip.substr(6, 2), 16));
+						var ipTtl = answer.substr(12, 8);	
+						evaluateIpAddress((parseInt(ip.substr(0, 2), 16) + "." + parseInt(ip.substr(2, 2), 16) + "." + parseInt(ip.substr(4, 2), 16) + "." + parseInt(ip.substr(6, 2), 16)), (parseInt(ipTtl, 16)).toString());
 					}
 					loop++;
 					resAfterQuery = resAfterQuery.substr(answerLength);
 				}
 			}
-			//return perDnsResponseIpArray;
 		}
 		
-		function evaluateIpAddressList(ipList){
-			for(var loop = 0; loop < ipList.length; loop++){
-				evaluateIpAddress(ipList[loop]);
-		   }
-		   
-		}
-		
-		function evaluateIpAddress(currentIp) {
+		function evaluateIpAddress(currentIp, ttl) {
 			var rtt = 0;
 			var timeToSynAck, initialTimestamp;
 			var options = { protocol: raw.Protocol.TCP };
@@ -179,7 +194,6 @@ server.on("message", function (msg, rinfo) {
 			});
 			
 			socket.on ("error", function (error) {
-				console.log ("RAW Socket error: " + error.toString ());
 				socket.close();
 			});
 			
@@ -190,7 +204,6 @@ server.on("message", function (msg, rinfo) {
 					if(rtt < min){
 						min = rtt;
 						minIp = currentIp;
-						console.log("Min IP: " + minIp);
 						var ipSegments = minIp.split('.');
 						var newDomainToIpArrayString = "818000010001" + clientReq.substr(16) + "c00c00010001" + "00000004" + "0004";
 						for (var loop = 0; loop < ipSegments.length; loop++) {
@@ -198,8 +211,10 @@ server.on("message", function (msg, rinfo) {
 							newDomainToIpArrayString = newDomainToIpArrayString + ("00" + tempIpSegmentInHex).substr(tempIpSegmentInHex.length);
 						}
 						domainToIpArray[domainNameInHex]['dnsPacketInHexWithoutTransactionId'] = newDomainToIpArrayString;
+						domainToIpArray[domainNameInHex]['lastUsed'] = new Date().getTime();
+						domainToIpArray[domainNameInHex]['ttl'] = ttl;
 					}
-					console.log("RTT for " + currentIp + ": " + timeToSynAck);
+					tcpSynTrafficInBytes = tcpSynTrafficInBytes + buffer.length;
 					socket.close();
 				}
 			});
@@ -213,10 +228,10 @@ server.on("message", function (msg, rinfo) {
 				finalRawPacket = ("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" + finalRawPacket).substr(finalRawPacket.length);
 				var buffer = new Buffer(finalRawPacket, 'hex');
 				socket.send (buffer, 0, buffer.length, currentIp, function (error, bytes) {
-					if (error) {
-						console.log (error.toString ());
-					} else {
+					if (error) {} 
+					else {
 						initialTimestamp = new Date().getTime();
+						tcpSynTrafficInBytes = tcpSynTrafficInBytes + buffer.length;
 					}
 				});	
 			}
