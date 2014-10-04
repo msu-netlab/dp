@@ -8,7 +8,7 @@ ldns_google_val = ecdf(ldns_google)
 ldns_03_val = ecdf(ldns_03)
 ldns_222_val = ecdf(ldns_222)
 
-plot(ldns_google_val, lty=1, col="grey", pch = 16, xlab="Time (ms)", ylab="CDF", main="DNS Server Selection based on Avg. Connection Setup Time", xlim=c(-400, 400))
+plot(ldns_google_val, lty=1, col="grey", pch = 16, xlab="Time Difference (ms)", ylab="CDF", main="DNS Server Selection based on Avg. Connection Setup Time", xlim=c(-400, 400))
 lines(ldns_03_val, pch = 17, col = "black")
 lines(ldns_222_val, pch = 18, col = "red")
 

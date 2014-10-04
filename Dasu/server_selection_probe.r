@@ -2,7 +2,7 @@ f_tcp<-c(130.7857143, 124.9642857, 122.9285714, 122.3571429, 121.6071429, 120, 1
 f_http<-c(152.75, 145.0357143, 126.6071429, 121.9642857, 121.6428571, 120.3928571, 118.7857143, 118.7857143, 117.3571429, 94.60714286, 93, 92.82142857, 92.64285714, 92.64285714, 92.64285714, 91.85714286, 91.85714286, 91.85714286)
 x<-c(50, 70, 90, 110, 130, 150, 170, 190, 210, 230, 250, 270, 290, 310, 330, 350, 370, 390)
 
-plot(x, f_tcp, type="o", col="grey", ylab="Download Time (ms)", xlab="Probe Delay (ms)", ylim=c(80, 165), pch=16)
+plot(x, f_tcp, type="o", col="grey", ylab="Download Time (ms)", xlab="Probing Delay (ms)", ylim=c(80, 165), pch=16)
 lines(x, f_http, type="o", col="black", pch=17)
 
 legend("topright", col=c("grey", "black"), pch=c(16, 17), legend=c("Based on TCP connection setup time", "Based on HTTP response time"))

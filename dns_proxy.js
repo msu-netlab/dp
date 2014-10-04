@@ -2,6 +2,7 @@ var dgram = require("dgram");
 var net =  require("net");
 
 var dnsIpList = ["8.8.8.8", "208.67.222.222", "209.244.0.3"];
+//var dnsIpList = ["153.90.2.15"];
 var server = dgram.createSocket("udp4");
 server.bind(53);
 var domainToIpArray = {};
@@ -50,7 +51,7 @@ server.on("message", function (msg, rinfo) {
 				client.close(); 
 				ipArray = ipArray.filter (function (v, i, a) { return a.indexOf (v) == i });
 				evaluateIpAddress(ipArray, null);
-			}, 2000);
+			}, 100);
 			
 			
 			

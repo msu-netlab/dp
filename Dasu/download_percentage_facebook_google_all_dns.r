@@ -12,9 +12,9 @@ mean_min_val_g = ecdf(mean_min_g)
 max_min_val_g = ecdf(max_min_g)
 
 plot(mean_min_val_f, lty=1, col="grey", pch = 16, xlab="Percentage (%)", ylab="CDF", main="Download Time Percentage Difference with IPs returned by all DNS", xlim=c(0, 100))
-lines(max_min_val_f, pch = 17, col="grey", lwd = 2)
+lines(max_min_val_f, pch = 3, col="grey", lwd = 2)
 lines(mean_min_val_g, pch = 16, col="black", lwd = 2)
-lines(max_min_val_g, pch = 17, col="black", lwd = 2)
+lines(max_min_val_g, pch = 3, col="black", lwd = 2)
 
-legend("bottomright",  pch = c(16, 17, 16, 17), legend = c("(Min/Mean)% for Facebook CDNs", "(Min/Max)% for Facebook CDNs", "(Min/Mean)% for Google CDNs", "(Min/Max)% for Google CDNs"), col=c("grey", "grey", "black", "black"))
+legend("bottomright",  pch = c(16, 3, 16, 3), legend = c("(Min/Mean)% for Facebook CDNs", "(Min/Max)% for Facebook CDNs", "(Min/Mean)% for Google CDNs", "(Min/Max)% for Google CDNs"), col=c("grey", "grey", "black", "black"))
 
