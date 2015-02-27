@@ -9,7 +9,7 @@ server.on("error", function (err) {
 	server.close();
 });
 
-var dnsIpList = ["8.8.8.8", "208.67.222.222", "209.244.0.3"];
+var dnsIpList = [4.2.2.5","8.8.8.8", "208.67.222.222", "209.244.0.3"];
 var domainToIpArray = {};
 var selfIp = require('ip').address();
 var portArrayInHex = ['0050', '01bb'];
@@ -28,9 +28,9 @@ Object.size = function(obj) {
 };
 
 server.on("message", function (msg, rinfo) {
-	console.log("Total Traffic: " + ((dnsTrafficInBytes + tcpSynTrafficInBytes)/1000) + " KB------Current Cache Size: " + (sizeof(domainToIpArray)/1000.0) + " KB------Number of Domains Cached: " + Object.size(domainToIpArray));
+	console.log("DNS Request Received.");
 	var clientReq = msg.toString('hex', 0, msg.length);
-	if(clientReq.substr(clientReq.length - 8, 4) == "0001") {
+	if(clientReq.substr(clientReq.length - 8, 4) === "0001" || clientReq.substr(clientReq.length - 8, 4) === "001c") { 
 		var min = Number.MAX_VALUE, minIp = "";
 		var domainNameInHex = clientReq.substr(24, clientReq.length - 32);
 		var clientIp = rinfo.address;
@@ -39,17 +39,21 @@ server.on("message", function (msg, rinfo) {
 		var dnsResponseToSendTransactionId = clientReq.substr(0, 4);
 		var ipArray = [];
 		
-		if (typeof domainToIpArray[domainNameInHex] === "undefined") {
+		if ((typeof domainToIpArray[domainNameInHex] === "undefined" && clientReq.substr(clientReq.length -8, 4) === "0001") || clientReq.substr(clientReq.length -8, 4) === "001c") {
 			var message = new Buffer(msg);
 			var client = dgram.createSocket("udp4");
 
-			client.on('error', function(err) {});
+			client.on('error', function(err) {
+				console.log(err.toString());
+			});
 			
 			client.bind();
 			
 			dnsIpList.forEach(function(dnsIp) {
 				client.send(message, 0, message.length, 53, dnsIp, function(err, bytes) {
-					if (err) {}
+					if (err) {
+						console.log(err.toString());
+					}
 					else if(bytes) {
 						dnsTrafficInBytes = dnsTrafficInBytes + message.length + 28;
 					}
@@ -75,7 +79,8 @@ server.on("message", function (msg, rinfo) {
 						domainToIpArray[domainNameInHex] = {'ttl' : defaultDnsResponseTtleInSeconds, 'dnsPacketInHexWithoutTransactionId' : dnsPacketInHexWithoutTransactionId, 'lastUsed': new Date().getTime()};
 					}
 					setTimeout(function() {
-						sendDnsResponse((dnsResponseToSendTransactionId + domainToIpArray[domainNameInHex]['dnsPacketInHexWithoutTransactionId']), clientIp, clientPort, "cold cache");
+						if(typeof domainToIpArray[domainNameInHex] !== "undefined")
+							sendDnsResponse((dnsResponseToSendTransactionId + domainToIpArray[domainNameInHex]['dnsPacketInHexWithoutTransactionId']), clientIp, clientPort, "cold cache");
 					}, dnsResponseDelayInMilliseconds);
 				}
 				else if (!isDnsResponseSentToClient && freshDomainIp == 0) {
@@ -110,7 +115,7 @@ server.on("message", function (msg, rinfo) {
 			var resInString = msg.toString('hex', 0 , msg.length);
 			var isAuthority = parseInt(resInString.substr(16, 4), 16);
 			var newResponse = resInString + "";
-			if (!isAuthority) {
+			if (!isAuthority || clientReq.substr(clientReq.length - 8, 4) === "0001") {
 				newResponse = "";
 				var noOfAnswer = parseInt(resInString.substr(12, 4), 16);
 				var posAfterQuery = resInString.indexOf("00010001", 24);
@@ -132,6 +137,7 @@ server.on("message", function (msg, rinfo) {
 					}
 					loop++;
 				}
+				return 0;
 			}
 			else {
 				return 0;
@@ -142,7 +148,9 @@ server.on("message", function (msg, rinfo) {
 			try { 
 				var message = new Buffer(msg, 'hex');
 				server.send(message, 0, message.length, port, ip, function(err, bytes) {
-					if (err) {}
+					if (err) {
+						console.log(err.toString());
+					}
 					else if (bytes) {
 						if (responseType === "cold cache" && isDnsResponseSentToClient === false) {
 							setTimeout(function() {
