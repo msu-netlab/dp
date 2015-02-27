@@ -9,3 +9,12 @@ Dependencies
 2. 'raw-socket' module for Node.js
 3. 'object-sizeof' module for Node.js
 4. 'ip' module for Node.js
+
+Installation
+============
+
+DNS-Proxy requires root access to host the DNS service on port 53 of the computer.
+
+1. From the project home directory, run 
+      sudo nodejs dns_proxy.js
+2. Once the dns_proxy has been started, configure your device to use localhost (127.0.0.1) as the default DNS server.
