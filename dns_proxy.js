@@ -1,7 +1,7 @@
 var dgram = require("dgram");
 var net =  require("net");
 var raw = require ("raw-socket");
-var sizeof = require('object-sizeof');
+var sizeof = require("object-sizeof");
 
 var server = dgram.createSocket("udp4");
 server.bind(53);
@@ -9,15 +9,17 @@ server.on("error", function (err) {
 	server.close();
 });
 
-var dnsIpList = [4.2.2.5","8.8.8.8", "208.67.222.222", "209.244.0.3"];
+var dnsIpList = ["4.2.2.5","8.8.8.8", "208.67.222.222", "209.244.0.3"];
 var domainToIpArray = {};
 var selfIp = require('ip').address();
-var portArrayInHex = ['0050', '01bb'];
-var cacheLimitInBytes = 10000000;
-var dnsResponseDelayInMilliseconds = 40;
+var portArrayInHex = ['0050', '01bb']; // HTTP ports 80 and 443
+var cacheLimitInBytes = 10000000; // DP maximum allowable cache size
+var dnsResponseDelayInMilliseconds = 40; // User configurable deadline
 var defaultDnsResponseTtleInSeconds = '300';
 var dnsTrafficInBytes = 0;
 var tcpSynTrafficInBytes = 0;
+var localSynPacketPortInHex = 'dd0f'; //port = 56591
+var localSynPacketPort = 56591;
 
 Object.size = function(obj) { 
     var size = 0, key;
@@ -30,7 +32,8 @@ Object.size = function(obj) {
 server.on("message", function (msg, rinfo) {
 	console.log("DNS Request Received.");
 	var clientReq = msg.toString('hex', 0, msg.length);
-	if(clientReq.substr(clientReq.length - 8, 4) === "0001" || clientReq.substr(clientReq.length - 8, 4) === "001c") { 
+	var dnsRequestType = clientReq.substr(clientReq.length - 8, 4);
+	if(dnsRequestType === "0001" || dnsRequestType === "001c") {
 		var min = Number.MAX_VALUE, minIp = "";
 		var domainNameInHex = clientReq.substr(24, clientReq.length - 32);
 		var clientIp = rinfo.address;
@@ -39,7 +42,7 @@ server.on("message", function (msg, rinfo) {
 		var dnsResponseToSendTransactionId = clientReq.substr(0, 4);
 		var ipArray = [];
 		
-		if ((typeof domainToIpArray[domainNameInHex] === "undefined" && clientReq.substr(clientReq.length -8, 4) === "0001") || clientReq.substr(clientReq.length -8, 4) === "001c") {
+		if ((typeof domainToIpArray[domainNameInHex] === "undefined" && dnsRequestType === "0001") || dnsRequestType === "001c") {
 			var message = new Buffer(msg);
 			var client = dgram.createSocket("udp4");
 
@@ -115,7 +118,7 @@ server.on("message", function (msg, rinfo) {
 			var resInString = msg.toString('hex', 0 , msg.length);
 			var isAuthority = parseInt(resInString.substr(16, 4), 16);
 			var newResponse = resInString + "";
-			if (!isAuthority || clientReq.substr(clientReq.length - 8, 4) === "0001") {
+			if (!isAuthority || dnsRequestType === "0001") {
 				newResponse = "";
 				var noOfAnswer = parseInt(resInString.substr(12, 4), 16);
 				var posAfterQuery = resInString.indexOf("00010001", 24);
@@ -206,7 +209,8 @@ server.on("message", function (msg, rinfo) {
 			});
 			
 			socket.on ("message", function (buffer, source) {
-				if(source === currentIp) {
+				var synAckpacket = buffer.toString('hex', 0, buffer.length);
+				if(source === currentIp && parseInt(synAckpacket.substr(44, 4), 16) == localSynPacketPort && (parseInt(synAckpacket.substr(40, 4), 16) == 80 || parseInt(synAckpacket.substr(40, 4), 16) == 443)) {
 					timeToSynAck = (new Date().getTime() - initialTimestamp);
 					rtt = timeToSynAck;
 					if(rtt < min){
@@ -230,7 +234,7 @@ server.on("message", function (msg, rinfo) {
 			var commonIpHeader = '4500003c5d4840004006';
 			var ipHeader = commonIpHeader + calculateChecksum(commonIpHeader + '0000' + convertIpToHex(selfIp) + convertIpToHex(currentIp)) + convertIpToHex(selfIp) + convertIpToHex(currentIp);
 			for (var i = 0; i < portArrayInHex.length; i++) {
-				var commonTcpHeader = 'dd0f' + portArrayInHex[i] + 'f49432e60000000080022000';
+				var commonTcpHeader = localSynPacketPortInHex + portArrayInHex[i] + 'f49432e60000000080022000';
 				var tcpHeader = commonTcpHeader + calculateChecksum(convertIpToHex(selfIp) + convertIpToHex(currentIp) + '00060020' + commonTcpHeader + '0000' + '0000020405b40103030801010402') + '0000020405b40103030801010402';
 				var finalRawPacket = ipHeader + tcpHeader;
 				finalRawPacket = ("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" + finalRawPacket).substr(finalRawPacket.length);
@@ -289,3 +293,4 @@ server.on("message", function (msg, rinfo) {
 		
 	}
 });
+
