@@ -1,0 +1,30 @@
+{
+  "name": "dns_proxy",
+  "version": "1.0.4",
+  "description": "DNS-Proxy for faster Web access.",
+  "main": "dns_proxy.js",
+  "dependencies": {
+    "ip": "^0.3.1",
+    "line-reader": "^0.2.4",
+    "object-sizeof": "^0.1.2",
+    "raw-socket": "^1.2.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msu-netlab/DNS-Proxy"
+  },
+  "keywords": [
+    "faster_web",
+    "dns"
+  ],
+  "author": "Utkarsh Goel <utkarsh.goel@cs.montana.edu>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/msu-netlab/DNS-Proxy/issues"
+  },
+  "homepage": "https://github.com/msu-netlab/DNS-Proxy"
+}
