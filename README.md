@@ -2,6 +2,9 @@ DNS-Proxy
 =========
 Modern websites use Content Delivery Networks (CDNs) to speed up the delivery of static content. However, we show that DNS-based load-balancing of CDN servers fails to fully deliver on the speedup of CDNs. We propose DNS-Proxy (dp), a client-side process that shares load-balancing functionality with CDNs by choosing from among resolved CDN servers based on last mile network performance. Our measurement study of CDN infrastructure deployed by Akamai and Google shows that dp reduces webpage load time by 29% on average. If dp has already resolved the domain, the reduction in webpage load time is 40% on average. Finally, dp reduces the download time of individual static Web objects by as much as 43%. We argue that dp enables a more effective use of existing content delivery infrastructure and represents a complementary strategy to a continual increase of geographic content availability.
 
+[Read more...](docs/GoelDnsProxyICCCN15.pdf)
+
+
 
 Installation
 ============
