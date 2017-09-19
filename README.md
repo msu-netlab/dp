@@ -11,8 +11,40 @@ Installation
 
 We also make DNS-Proxy available as an npm-module at https://www.npmjs.com/package/dns_proxy
 
-1. To download DNS-Proxy, run 
-      npm install dns_proxy
-2. To start DNS-Proxy server, run
-      sudo node node_modules/dns_proxy/dns_proxy.js
-3. Once the dns_proxy has been started, configure your device to use localhost (127.0.0.1) as the default DNS server.
+1. Make sure nodejs is installed
+2. Install the following modules using npn
+
+``` bash
+$ npm install ip
+$ npm install raw-socket
+$ npm install line-reader
+$ npm install object-sizeof
+```
+
+3. Intall DNS-Proxy
+
+``` bash
+$ npm install dns_proxy
+```
+
+4. Start DNS-Proxy server. 
+
+``` bash
+$ sudo node node_modules/dns_proxy/dns_proxy.js
+```
+
+Or if you are running from source
+
+``` bash
+$ sudo sudo nodejs dp.js
+```
+
+Note that DNS-Proxy uses raw-sockets and so requires root access to run. The server will run at 127.0.0.1:53 by default.
+
+5. Once the dns_proxy has been started, configure your device to use localhost (127.0.0.1) as the default DNS server.
+You can test DNS-Proxy in another terminal with
+
+``` bash
+$ sudo nodejs dp.js
+```
+
