@@ -36,7 +36,7 @@ $ sudo node node_modules/dns_proxy/dns_proxy.js
 Or if you are running from source
 
 ``` bash
-$ sudo sudo nodejs dp.js
+$ sudo nodejs dp.js
 ```
 
 Note that DNS-Proxy uses raw-sockets and so requires root access to run. The server will run at 127.0.0.1:53 by default.
@@ -45,6 +45,6 @@ Note that DNS-Proxy uses raw-sockets and so requires root access to run. The ser
 You can test DNS-Proxy in another terminal with
 
 ``` bash
-$ sudo nodejs dp.js
+$ dig A www.bestbuy.com @127.0.0.1
 ```
 
